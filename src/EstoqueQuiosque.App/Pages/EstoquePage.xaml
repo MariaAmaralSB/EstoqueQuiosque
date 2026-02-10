@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:EstoqueQuiosque.App.Models"
+             x:Class="EstoqueQuiosque.App.Pages.EstoquePage"
+             Title="Estoque do Quiosque">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12">
+            <Label Text="Controle de Estoque - Praia"
+                   FontSize="24"
+                   FontAttributes="Bold" />
+
+            <Label Text="Produto" />
+            <Picker ItemsSource="{Binding Produtos}"
+                    ItemDisplayBinding="{Binding Nome}"
+                    SelectedItem="{Binding ProdutoSelecionado}" />
+
+            <Label Text="Quantidade" />
+            <Entry Keyboard="Numeric"
+                   Text="{Binding QuantidadeMovimento}" />
+
+            <Label Text="Observação" />
+            <Entry Placeholder="Ex.: reposição fornecedor"
+                   Text="{Binding Observacao}" />
+
+            <HorizontalStackLayout Spacing="10">
+                <Button Text="Registrar Entrada"
+                        Command="{Binding RegistrarEntradaCommand}" />
+                <Button Text="Registrar Saída"
+                        BackgroundColor="#D00000"
+                        Command="{Binding RegistrarSaidaCommand}" />
+            </HorizontalStackLayout>
+
+            <Frame BorderColor="#ADE8F4" Padding="8">
+                <Label Text="{Binding MensagemStatus}" />
+            </Frame>
+
+            <Label Text="Itens em estoque"
+                   FontAttributes="Bold"
+                   FontSize="18" />
+
+            <CollectionView ItemsSource="{Binding Produtos}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Produto">
+                        <Grid ColumnDefinitions="*,Auto" Padding="0,6">
+                            <VerticalStackLayout>
+                                <Label Text="{Binding Nome}" FontAttributes="Bold" />
+                                <Label Text="{Binding QuantidadeAtual, StringFormat='Quantidade: {0}'}" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="1"
+                                   Text="⚠"
+                                   TextColor="#D00000"
+                                   IsVisible="{Binding AbaixoDoMinimo}" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Label Text="Últimos movimentos"
+                   FontAttributes="Bold"
+                   FontSize="18" />
+
+            <CollectionView ItemsSource="{Binding MovimentosRecentes}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:MovimentoEstoque">
+                        <VerticalStackLayout Padding="0,6">
+                            <Label Text="{Binding Resumo}" />
+                            <Label Text="{Binding Quantidade, StringFormat='Qtd: {0}'}" FontSize="12" />
+                            <Label Text="{Binding Data, StringFormat='Data: {0:dd/MM HH:mm}'}" FontSize="12" />
+                        </VerticalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
