@@ -10,21 +10,27 @@
             <Label Text="Cadastro de Produtos"
                    FontSize="24"
                    FontAttributes="Bold"
-                   TextColor="#0B2545" />
+                   TextColor="#111827" />
 
-            <Label Text="Nome do produto" TextColor="#0B2545" />
+            <Label Text="Selecionar produto para editar (opcional)" TextColor="#111827" />
+            <Picker ItemsSource="{Binding ProdutosCadastrados}"
+                    ItemDisplayBinding="{Binding Nome}"
+                    SelectedItem="{Binding ProdutoSelecionadoParaEdicao}"
+                    Title="Selecione para editar" />
+
+            <Label Text="Nome do produto" TextColor="#111827" />
             <Entry Placeholder="Ex.: Refrigerante lata"
                    Text="{Binding NomeProduto}" />
 
             <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                 <VerticalStackLayout>
-                    <Label Text="Unidade" TextColor="#0B2545" />
+                    <Label Text="Unidade" TextColor="#111827" />
                     <Entry Placeholder="un"
                            Text="{Binding Unidade}" />
                 </VerticalStackLayout>
 
                 <VerticalStackLayout Grid.Column="1">
-                    <Label Text="Custo unitário" TextColor="#0B2545" />
+                    <Label Text="Custo unitário" TextColor="#111827" />
                     <Entry Keyboard="Numeric"
                            Placeholder="0,00"
                            Text="{Binding CustoUnitario}" />
@@ -33,30 +39,40 @@
 
             <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                 <VerticalStackLayout>
-                    <Label Text="Quantidade inicial" TextColor="#0B2545" />
+                    <Label Text="Quantidade atual" TextColor="#111827" />
                     <Entry Keyboard="Numeric"
                            Text="{Binding QuantidadeInicial}" />
                 </VerticalStackLayout>
 
                 <VerticalStackLayout Grid.Column="1">
-                    <Label Text="Estoque mínimo" TextColor="#0B2545" />
+                    <Label Text="Estoque mínimo" TextColor="#111827" />
                     <Entry Keyboard="Numeric"
                            Text="{Binding EstoqueMinimo}" />
                 </VerticalStackLayout>
             </Grid>
 
-            <Button Text="Cadastrar Produto"
-                    Command="{Binding CadastrarProdutoCommand}" />
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <Button Text="Cadastrar Produto"
+                        Command="{Binding CadastrarProdutoCommand}" />
+                <Button Grid.Column="1"
+                        Text="Salvar Alterações"
+                        BackgroundColor="#5B3A29"
+                        Command="{Binding AtualizarProdutoCommand}" />
+            </Grid>
+
+            <Button Text="Limpar seleção"
+                    BackgroundColor="#6B7280"
+                    Command="{Binding LimparFormularioCommand}" />
 
             <Frame Padding="10">
                 <Label Text="{Binding MensagemStatus}"
-                       TextColor="#0B2545" />
+                       TextColor="#111827" />
             </Frame>
 
             <Label Text="Produtos cadastrados"
                    FontSize="18"
                    FontAttributes="Bold"
-                   TextColor="#0B2545" />
+                   TextColor="#111827" />
 
             <CollectionView ItemsSource="{Binding ProdutosCadastrados}">
                 <CollectionView.ItemTemplate>
@@ -66,18 +82,18 @@
                                 <VerticalStackLayout>
                                     <Label Text="{Binding Nome}"
                                            FontAttributes="Bold"
-                                           TextColor="#0B2545" />
+                                           TextColor="#111827" />
                                     <Label Text="{Binding Unidade, StringFormat='Unidade: {0}'}"
-                                           TextColor="#1D3557" />
+                                           TextColor="#374151" />
                                     <Label Text="{Binding QuantidadeAtual, StringFormat='Qtd atual: {0}'}"
-                                           TextColor="#1D3557" />
+                                           TextColor="#374151" />
                                 </VerticalStackLayout>
 
                                 <Label Grid.Column="1"
                                        Text="{Binding CustoUnitario, StringFormat='R$ {0:F2}'}"
                                        VerticalOptions="Center"
                                        FontAttributes="Bold"
-                                       TextColor="#1D3557" />
+                                       TextColor="#1F2937" />
                             </Grid>
                         </Frame>
                     </DataTemplate>

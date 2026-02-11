@@ -10,18 +10,18 @@
             <Label Text="Controle de Estoque - Praia"
                    FontSize="24"
                    FontAttributes="Bold"
-                   TextColor="#0B2545" />
+                   TextColor="#111827" />
 
-            <Label Text="Produto" TextColor="#0B2545" />
+            <Label Text="Produto" TextColor="#111827" />
             <Picker ItemsSource="{Binding Produtos}"
                     ItemDisplayBinding="{Binding Nome}"
                     SelectedItem="{Binding ProdutoSelecionado}" />
 
-            <Label Text="Quantidade" TextColor="#0B2545" />
+            <Label Text="Quantidade" TextColor="#111827" />
             <Entry Keyboard="Numeric"
                    Text="{Binding QuantidadeMovimento}" />
 
-            <Label Text="Observação" TextColor="#0B2545" />
+            <Label Text="Observação" TextColor="#111827" />
             <Entry Placeholder="Ex.: reposição fornecedor"
                    Text="{Binding Observacao}" />
 
@@ -40,15 +40,15 @@
             <Label Text="Itens em estoque"
                    FontAttributes="Bold"
                    FontSize="18"
-                   TextColor="#0B2545" />
+                   TextColor="#111827" />
 
             <CollectionView ItemsSource="{Binding Produtos}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:Produto">
                         <Grid ColumnDefinitions="*,Auto" Padding="0,6">
                             <VerticalStackLayout>
-                                <Label Text="{Binding Nome}" FontAttributes="Bold" TextColor="#0B2545" />
-                                <Label Text="{Binding QuantidadeAtual, StringFormat='Quantidade: {0}'}" TextColor="#1D3557" />
+                                <Label Text="{Binding Nome}" FontAttributes="Bold" TextColor="#111827" />
+                                <Label Text="{Binding QuantidadeAtual, StringFormat='Quantidade: {0}'}" TextColor="#374151" />
                             </VerticalStackLayout>
                             <Label Grid.Column="1"
                                    Text="⚠"
@@ -62,15 +62,15 @@
             <Label Text="Últimos movimentos"
                    FontAttributes="Bold"
                    FontSize="18"
-                   TextColor="#0B2545" />
+                   TextColor="#111827" />
 
             <CollectionView ItemsSource="{Binding MovimentosRecentes}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:MovimentoEstoque">
                         <VerticalStackLayout Padding="0,6">
-                            <Label Text="{Binding Resumo}" TextColor="#0B2545" />
-                            <Label Text="{Binding Quantidade, StringFormat='Qtd: {0}'}" FontSize="12" TextColor="#1D3557" />
-                            <Label Text="{Binding Data, StringFormat='Data: {0:dd/MM HH:mm}'}" FontSize="12" TextColor="#1D3557" />
+                            <Label Text="{Binding Resumo}" TextColor="#111827" />
+                            <Label Text="{Binding Quantidade, StringFormat='Qtd: {0}'}" FontSize="12" TextColor="#374151" />
+                            <Label Text="{Binding Data, StringFormat='Data: {0:dd/MM HH:mm}'}" FontSize="12" TextColor="#374151" />
                         </VerticalStackLayout>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>

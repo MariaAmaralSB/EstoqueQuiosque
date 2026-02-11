@@ -8,10 +8,12 @@ Foi criada uma base inicial de app MAUI com:
 
 - Cadastro básico de produtos em memória.
 - Tela principal para cadastro de produtos.
+- Edição de produto existente (nome, unidade, quantidade, mínimo e custo).
 - Registro de entradas e saídas de estoque.
 - Indicador visual de itens abaixo do estoque mínimo.
 - Histórico dos últimos movimentos.
 - Contraste reforçado nas listas para melhorar visibilidade.
+- Paleta revisada para melhor leitura (menos tons de azul e maior contraste).
 - Estrutura em camadas simples (`Models`, `Services`, `ViewModels`, `Pages`) para facilitar evolução.
 - Manifest Android criado em `Platforms/Android/AndroidManifest.xml` para evitar erro XA1018 em build local.
 - Ajuste de empacotamento Windows (`WindowsPackageType=None`) para rodar sem AppxManifest durante desenvolvimento.

@@ -10,6 +10,7 @@ namespace EstoqueQuiosque.App.ViewModels;
 public class CadastroProdutoViewModel : INotifyPropertyChanged
 {
     private readonly EstoqueService _estoqueService;
+    private Produto? _produtoSelecionadoParaEdicao;
     private string _nomeProduto = string.Empty;
     private string _unidade = "un";
     private int _quantidadeInicial;
@@ -23,12 +24,36 @@ public class CadastroProdutoViewModel : INotifyPropertyChanged
         _estoqueService.DadosAtualizados += AtualizarLista;
 
         CadastrarProdutoCommand = new Command(CadastrarProduto, PodeCadastrarProduto);
+        AtualizarProdutoCommand = new Command(AtualizarProduto, PodeAtualizarProduto);
+        LimparFormularioCommand = new Command(LimparFormulario);
         AtualizarLista();
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public ObservableCollection<Produto> ProdutosCadastrados { get; } = [];
+
+    public Produto? ProdutoSelecionadoParaEdicao
+    {
+        get => _produtoSelecionadoParaEdicao;
+        set
+        {
+            if (SetProperty(ref _produtoSelecionadoParaEdicao, value))
+            {
+                if (value is not null)
+                {
+                    NomeProduto = value.Nome;
+                    Unidade = value.Unidade;
+                    QuantidadeInicial = value.QuantidadeAtual;
+                    EstoqueMinimo = value.EstoqueMinimo;
+                    CustoUnitario = value.CustoUnitario;
+                    MensagemStatus = $"Editando produto: {value.Nome}";
+                }
+
+                AtualizarComandos();
+            }
+        }
+    }
 
     public string NomeProduto
     {
@@ -37,7 +62,7 @@ public class CadastroProdutoViewModel : INotifyPropertyChanged
         {
             if (SetProperty(ref _nomeProduto, value))
             {
-                AtualizarComandoCadastro();
+                AtualizarComandos();
             }
         }
     }
@@ -72,18 +97,29 @@ public class CadastroProdutoViewModel : INotifyPropertyChanged
         set => SetProperty(ref _mensagemStatus, value);
     }
 
+    public bool EstaEmEdicao => ProdutoSelecionadoParaEdicao is not null;
+
     public ICommand CadastrarProdutoCommand { get; }
+    public ICommand AtualizarProdutoCommand { get; }
+    public ICommand LimparFormularioCommand { get; }
 
     private void AtualizarLista()
     {
+        var produtoSelecionadoId = ProdutoSelecionadoParaEdicao?.Id;
+
         ProdutosCadastrados.Clear();
         foreach (var produto in _estoqueService.ListarProdutos())
         {
             ProdutosCadastrados.Add(produto);
         }
+
+        ProdutoSelecionadoParaEdicao = ProdutosCadastrados.FirstOrDefault(p => p.Id == produtoSelecionadoId);
+        AtualizarComandos();
     }
 
-    private bool PodeCadastrarProduto() => !string.IsNullOrWhiteSpace(NomeProduto);
+    private bool PodeCadastrarProduto() => !string.IsNullOrWhiteSpace(NomeProduto) && !EstaEmEdicao;
+
+    private bool PodeAtualizarProduto() => !string.IsNullOrWhiteSpace(NomeProduto) && EstaEmEdicao;
 
     private void CadastrarProduto()
     {
@@ -91,17 +127,50 @@ public class CadastroProdutoViewModel : INotifyPropertyChanged
         {
             _estoqueService.CadastrarProduto(NomeProduto, Unidade, QuantidadeInicial, EstoqueMinimo, CustoUnitario);
             MensagemStatus = $"Produto '{NomeProduto.Trim()}' cadastrado com sucesso.";
-
-            NomeProduto = string.Empty;
-            Unidade = "un";
-            QuantidadeInicial = 0;
-            EstoqueMinimo = 0;
-            CustoUnitario = 0;
+            LimparFormulario();
         }
         catch (InvalidOperationException ex)
         {
             MensagemStatus = ex.Message;
         }
+    }
+
+    private void AtualizarProduto()
+    {
+        if (ProdutoSelecionadoParaEdicao is null)
+        {
+            return;
+        }
+
+        try
+        {
+            _estoqueService.AtualizarProduto(
+                ProdutoSelecionadoParaEdicao.Id,
+                NomeProduto,
+                Unidade,
+                QuantidadeInicial,
+                EstoqueMinimo,
+                CustoUnitario);
+
+            MensagemStatus = $"Produto '{NomeProduto.Trim()}' atualizado com sucesso.";
+            LimparFormulario();
+        }
+        catch (InvalidOperationException ex)
+        {
+            MensagemStatus = ex.Message;
+        }
+    }
+
+    private void LimparFormulario()
+    {
+        ProdutoSelecionadoParaEdicao = null;
+        NomeProduto = string.Empty;
+        Unidade = "un";
+        QuantidadeInicial = 0;
+        EstoqueMinimo = 0;
+        CustoUnitario = 0;
+        OnPropertyChanged(nameof(EstaEmEdicao));
+        AtualizarComandos();
     }
 
     private bool SetProperty<T>(ref T backingStore, T value, [CallerMemberName] string propertyName = "")
@@ -113,11 +182,21 @@ public class CadastroProdutoViewModel : INotifyPropertyChanged
 
         backingStore = value;
         OnPropertyChanged(propertyName);
+
+        if (propertyName == nameof(ProdutoSelecionadoParaEdicao))
+        {
+            OnPropertyChanged(nameof(EstaEmEdicao));
+        }
+
         return true;
     }
 
     private void OnPropertyChanged([CallerMemberName] string propertyName = "") =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-    private void AtualizarComandoCadastro() => (CadastrarProdutoCommand as Command)?.ChangeCanExecute();
+    private void AtualizarComandos()
+    {
+        (CadastrarProdutoCommand as Command)?.ChangeCanExecute();
+        (AtualizarProdutoCommand as Command)?.ChangeCanExecute();
+    }
 }

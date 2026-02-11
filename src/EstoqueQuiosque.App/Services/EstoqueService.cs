@@ -24,34 +24,45 @@ public class EstoqueService
 
     public void CadastrarProduto(string nome, string unidade, int quantidadeInicial, int estoqueMinimo, decimal custoUnitario)
     {
-        if (string.IsNullOrWhiteSpace(nome))
-        {
-            throw new InvalidOperationException("Informe o nome do produto.");
-        }
+        var nomeNormalizado = nome.Trim();
 
-        if (quantidadeInicial < 0 || estoqueMinimo < 0)
-        {
-            throw new InvalidOperationException("Quantidade e estoque mínimo devem ser maiores ou iguais a zero.");
-        }
+        ValidarDadosProduto(nomeNormalizado, quantidadeInicial, estoqueMinimo, custoUnitario);
 
-        if (custoUnitario < 0)
-        {
-            throw new InvalidOperationException("O custo unitário deve ser maior ou igual a zero.");
-        }
-
-        if (_produtos.Any(p => string.Equals(p.Nome, nome.Trim(), StringComparison.OrdinalIgnoreCase)))
+        if (_produtos.Any(p => string.Equals(p.Nome, nomeNormalizado, StringComparison.OrdinalIgnoreCase)))
         {
             throw new InvalidOperationException("Já existe um produto com esse nome.");
         }
 
         _produtos.Add(new Produto
         {
-            Nome = nome.Trim(),
+            Nome = nomeNormalizado,
             Unidade = string.IsNullOrWhiteSpace(unidade) ? "un" : unidade.Trim().ToLowerInvariant(),
             QuantidadeAtual = quantidadeInicial,
             EstoqueMinimo = estoqueMinimo,
             CustoUnitario = custoUnitario
         });
+
+        NotificarAtualizacao();
+    }
+
+    public void AtualizarProduto(Guid produtoId, string nome, string unidade, int quantidadeAtual, int estoqueMinimo, decimal custoUnitario)
+    {
+        var produto = _produtos.FirstOrDefault(p => p.Id == produtoId)
+                     ?? throw new InvalidOperationException("Produto não encontrado para atualização.");
+
+        var nomeNormalizado = nome.Trim();
+        ValidarDadosProduto(nomeNormalizado, quantidadeAtual, estoqueMinimo, custoUnitario);
+
+        if (_produtos.Any(p => p.Id != produtoId && string.Equals(p.Nome, nomeNormalizado, StringComparison.OrdinalIgnoreCase)))
+        {
+            throw new InvalidOperationException("Já existe outro produto com esse nome.");
+        }
+
+        produto.Nome = nomeNormalizado;
+        produto.Unidade = string.IsNullOrWhiteSpace(unidade) ? "un" : unidade.Trim().ToLowerInvariant();
+        produto.QuantidadeAtual = quantidadeAtual;
+        produto.EstoqueMinimo = estoqueMinimo;
+        produto.CustoUnitario = custoUnitario;
 
         NotificarAtualizacao();
     }
@@ -95,6 +106,24 @@ public class EstoqueService
         });
 
         NotificarAtualizacao();
+    }
+
+    private static void ValidarDadosProduto(string nome, int quantidade, int estoqueMinimo, decimal custoUnitario)
+    {
+        if (string.IsNullOrWhiteSpace(nome))
+        {
+            throw new InvalidOperationException("Informe o nome do produto.");
+        }
+
+        if (quantidade < 0 || estoqueMinimo < 0)
+        {
+            throw new InvalidOperationException("Quantidade e estoque mínimo devem ser maiores ou iguais a zero.");
+        }
+
+        if (custoUnitario < 0)
+        {
+            throw new InvalidOperationException("O custo unitário deve ser maior ou igual a zero.");
+        }
     }
 
     private void NotificarAtualizacao() => DadosAtualizados?.Invoke();

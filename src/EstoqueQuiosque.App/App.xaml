@@ -4,12 +4,13 @@
              x:Class="EstoqueQuiosque.App.App">
     <Application.Resources>
         <ResourceDictionary>
-            <Color x:Key="Primary">#0077B6</Color>
-            <Color x:Key="Secondary">#0096C7</Color>
-            <Color x:Key="PageBackground">#FFFFFF</Color>
-            <Color x:Key="Surface">#F8FBFF</Color>
-            <Color x:Key="TextPrimary">#1B263B</Color>
-            <Color x:Key="BorderColor">#BDE0FE</Color>
+            <Color x:Key="Primary">#2D2A32</Color>
+            <Color x:Key="Secondary">#6B4F4F</Color>
+            <Color x:Key="PageBackground">#FFFDF7</Color>
+            <Color x:Key="Surface">#FFFFFF</Color>
+            <Color x:Key="TextPrimary">#1F2937</Color>
+            <Color x:Key="TextSecondary">#374151</Color>
+            <Color x:Key="BorderColor">#D1D5DB</Color>
 
             <Style TargetType="ContentPage">
                 <Setter Property="BackgroundColor" Value="{StaticResource PageBackground}" />
@@ -22,7 +23,7 @@
 
             <Style TargetType="Entry">
                 <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
-                <Setter Property="PlaceholderColor" Value="#6C757D" />
+                <Setter Property="PlaceholderColor" Value="#6B7280" />
                 <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
             </Style>
 
