@@ -19,7 +19,9 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<EstoqueService>();
         builder.Services.AddSingleton<EstoqueViewModel>();
+        builder.Services.AddSingleton<CadastroProdutoViewModel>();
         builder.Services.AddSingleton<EstoquePage>();
+        builder.Services.AddSingleton<CadastroProdutoPage>();
 
 
         return builder.Build();

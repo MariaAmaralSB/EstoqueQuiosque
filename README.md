@@ -7,9 +7,11 @@ Aplicativo **.NET MAUI** para controle de estoque de um quiosque na praia, com f
 Foi criada uma base inicial de app MAUI com:
 
 - Cadastro básico de produtos em memória.
+- Tela principal para cadastro de produtos.
 - Registro de entradas e saídas de estoque.
 - Indicador visual de itens abaixo do estoque mínimo.
 - Histórico dos últimos movimentos.
+- Contraste reforçado nas listas para melhorar visibilidade.
 - Estrutura em camadas simples (`Models`, `Services`, `ViewModels`, `Pages`) para facilitar evolução.
 - Manifest Android criado em `Platforms/Android/AndroidManifest.xml` para evitar erro XA1018 em build local.
 - Ajuste de empacotamento Windows (`WindowsPackageType=None`) para rodar sem AppxManifest durante desenvolvimento.

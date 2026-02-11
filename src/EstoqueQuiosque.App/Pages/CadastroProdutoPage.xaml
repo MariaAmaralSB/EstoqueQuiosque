@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:EstoqueQuiosque.App.Models"
+             x:Class="EstoqueQuiosque.App.Pages.CadastroProdutoPage"
+             Title="Produtos">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12">
+            <Label Text="Cadastro de Produtos"
+                   FontSize="24"
+                   FontAttributes="Bold"
+                   TextColor="#0B2545" />
+
+            <Label Text="Nome do produto" TextColor="#0B2545" />
+            <Entry Placeholder="Ex.: Refrigerante lata"
+                   Text="{Binding NomeProduto}" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <VerticalStackLayout>
+                    <Label Text="Unidade" TextColor="#0B2545" />
+                    <Entry Placeholder="un"
+                           Text="{Binding Unidade}" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Grid.Column="1">
+                    <Label Text="Custo unitário" TextColor="#0B2545" />
+                    <Entry Keyboard="Numeric"
+                           Placeholder="0,00"
+                           Text="{Binding CustoUnitario}" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <VerticalStackLayout>
+                    <Label Text="Quantidade inicial" TextColor="#0B2545" />
+                    <Entry Keyboard="Numeric"
+                           Text="{Binding QuantidadeInicial}" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Grid.Column="1">
+                    <Label Text="Estoque mínimo" TextColor="#0B2545" />
+                    <Entry Keyboard="Numeric"
+                           Text="{Binding EstoqueMinimo}" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <Button Text="Cadastrar Produto"
+                    Command="{Binding CadastrarProdutoCommand}" />
+
+            <Frame Padding="10">
+                <Label Text="{Binding MensagemStatus}"
+                       TextColor="#0B2545" />
+            </Frame>
+
+            <Label Text="Produtos cadastrados"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   TextColor="#0B2545" />
+
+            <CollectionView ItemsSource="{Binding ProdutosCadastrados}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Produto">
+                        <Frame Margin="0,4" Padding="10">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout>
+                                    <Label Text="{Binding Nome}"
+                                           FontAttributes="Bold"
+                                           TextColor="#0B2545" />
+                                    <Label Text="{Binding Unidade, StringFormat='Unidade: {0}'}"
+                                           TextColor="#1D3557" />
+                                    <Label Text="{Binding QuantidadeAtual, StringFormat='Qtd atual: {0}'}"
+                                           TextColor="#1D3557" />
+                                </VerticalStackLayout>
+
+                                <Label Grid.Column="1"
+                                       Text="{Binding CustoUnitario, StringFormat='R$ {0:F2}'}"
+                                       VerticalOptions="Center"
+                                       FontAttributes="Bold"
+                                       TextColor="#1D3557" />
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -18,6 +18,8 @@ public class EstoqueViewModel : INotifyPropertyChanged
     public EstoqueViewModel(EstoqueService estoqueService)
     {
         _estoqueService = estoqueService;
+        _estoqueService.DadosAtualizados += AtualizarDados;
+
         RegistrarEntradaCommand = new Command(RegistrarEntrada, PodeRegistrarMovimento);
         RegistrarSaidaCommand = new Command(RegistrarSaida, PodeRegistrarMovimento);
         AtualizarDados();
@@ -69,6 +71,8 @@ public class EstoqueViewModel : INotifyPropertyChanged
 
     private void AtualizarDados()
     {
+        var produtoSelecionadoId = ProdutoSelecionado?.Id;
+
         Produtos.Clear();
         foreach (var produto in _estoqueService.ListarProdutos())
         {
@@ -81,10 +85,8 @@ public class EstoqueViewModel : INotifyPropertyChanged
             MovimentosRecentes.Add(movimento);
         }
 
-        if (ProdutoSelecionado is null)
-        {
-            ProdutoSelecionado = Produtos.FirstOrDefault();
-        }
+        ProdutoSelecionado = Produtos.FirstOrDefault(p => p.Id == produtoSelecionadoId) ?? Produtos.FirstOrDefault();
+        AtualizarComandos();
     }
 
     private bool PodeRegistrarMovimento() => ProdutoSelecionado is not null && QuantidadeMovimento > 0;
@@ -99,7 +101,6 @@ public class EstoqueViewModel : INotifyPropertyChanged
         _estoqueService.RegistrarEntrada(ProdutoSelecionado.Id, QuantidadeMovimento, Observacao);
         MensagemStatus = $"Entrada registrada para {ProdutoSelecionado.Nome}.";
         Observacao = string.Empty;
-        AtualizarDados();
     }
 
     private void RegistrarSaida()
@@ -114,7 +115,6 @@ public class EstoqueViewModel : INotifyPropertyChanged
             _estoqueService.RegistrarSaida(ProdutoSelecionado.Id, QuantidadeMovimento, Observacao);
             MensagemStatus = $"Saída registrada para {ProdutoSelecionado.Nome}.";
             Observacao = string.Empty;
-            AtualizarDados();
         }
         catch (InvalidOperationException ex)
         {

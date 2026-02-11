@@ -11,9 +11,20 @@
     Shell.NavBarHasShadow="False"
     Title="Estoque Quiosque">
 
-    <ShellContent
-        Title="Controle de Estoque"
-        ContentTemplate="{DataTemplate pages:EstoquePage}"
-        Route="EstoquePage" />
+    <TabBar>
+        <Tab Title="Principal">
+            <ShellContent
+                Title="Cadastro"
+                ContentTemplate="{DataTemplate pages:CadastroProdutoPage}"
+                Route="CadastroProdutoPage" />
+        </Tab>
+
+        <Tab Title="Estoque">
+            <ShellContent
+                Title="Movimentações"
+                ContentTemplate="{DataTemplate pages:EstoquePage}"
+                Route="EstoquePage" />
+        </Tab>
+    </TabBar>
 
 </Shell>
