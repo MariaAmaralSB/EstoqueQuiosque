@@ -11,6 +11,8 @@ Foi criada uma base inicial de app MAUI com:
 - Indicador visual de itens abaixo do estoque mínimo.
 - Histórico dos últimos movimentos.
 - Estrutura em camadas simples (`Models`, `Services`, `ViewModels`, `Pages`) para facilitar evolução.
+- Manifest Android criado em `Platforms/Android/AndroidManifest.xml` para evitar erro XA1018 em build local.
+- Ajuste de empacotamento Windows (`WindowsPackageType=None`) para rodar sem AppxManifest durante desenvolvimento.
 
 ## Estrutura
 
