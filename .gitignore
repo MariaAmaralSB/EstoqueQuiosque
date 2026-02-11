@@ -1,0 +1,63 @@
+# Build outputs
+[Bb]in/
+[Oo]bj/
+
+# User-specific files
+*.user
+*.rsuser
+*.suo
+*.userprefs
+
+# IDE folders/files
+.vs/
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+
+# Test and coverage
+TestResults/
+*.trx
+coverage/
+*.coverage
+*.coveragexml
+
+# .NET local tools and caches
+artifacts/
+BenchmarkDotNet.Artifacts/
+
+# MAUI / Xamarin / Android / iOS artifacts
+*.apk
+*.aab
+*.apks
+*.ipa
+*.app
+*.dSYM/
+*.keystore
+*.jks
+
+# Android generated/signing files
+*.idsig
+*.kotlin_module
+
+# Rider/ReSharper
+_ReSharper*/
+*.DotSettings.user
+
+# Local environment files
+.env
+.env.*
+
+# Publish output
+publish/
