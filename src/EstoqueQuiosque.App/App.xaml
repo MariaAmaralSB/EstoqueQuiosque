@@ -6,10 +6,38 @@
         <ResourceDictionary>
             <Color x:Key="Primary">#0077B6</Color>
             <Color x:Key="Secondary">#0096C7</Color>
+            <Color x:Key="PageBackground">#FFFFFF</Color>
+            <Color x:Key="Surface">#F8FBFF</Color>
+            <Color x:Key="TextPrimary">#1B263B</Color>
+            <Color x:Key="BorderColor">#BDE0FE</Color>
+
+            <Style TargetType="ContentPage">
+                <Setter Property="BackgroundColor" Value="{StaticResource PageBackground}" />
+            </Style>
+
             <Style TargetType="Label">
-                <Setter Property="TextColor" Value="#1B263B" />
+                <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
                 <Setter Property="FontFamily" Value="OpenSansRegular" />
             </Style>
+
+            <Style TargetType="Entry">
+                <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+                <Setter Property="PlaceholderColor" Value="#6C757D" />
+                <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
+            </Style>
+
+            <Style TargetType="Picker">
+                <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+                <Setter Property="TitleColor" Value="{StaticResource TextPrimary}" />
+                <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
+            </Style>
+
+            <Style TargetType="Frame">
+                <Setter Property="BackgroundColor" Value="{StaticResource Surface}" />
+                <Setter Property="BorderColor" Value="{StaticResource BorderColor}" />
+                <Setter Property="HasShadow" Value="False" />
+            </Style>
+
             <Style TargetType="Button">
                 <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
                 <Setter Property="TextColor" Value="White" />
