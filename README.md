@@ -13,6 +13,8 @@ Foi criada uma base inicial de app MAUI com:
 - Estrutura em camadas simples (`Models`, `Services`, `ViewModels`, `Pages`) para facilitar evolução.
 - Manifest Android criado em `Platforms/Android/AndroidManifest.xml` para evitar erro XA1018 em build local.
 - Ajuste de empacotamento Windows (`WindowsPackageType=None`) para rodar sem AppxManifest durante desenvolvimento.
+- Arquivos de inicialização por plataforma (Android/iOS/MacCatalyst/Windows) adicionados para evitar erro de entrada `Main` (CS5001).
+- Removido `builder.Logging.AddDebug()` para eliminar erro de extensão de logging em ambientes sem pacote de debug (CS1061).
 
 ## Estrutura
 
