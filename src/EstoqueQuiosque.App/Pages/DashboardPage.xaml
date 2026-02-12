@@ -45,7 +45,7 @@
                     <Label Text="Gerencie seus produtos de forma eficiente. Cadastre novos itens e mantenha o controle total do seu inventário."
                            FontSize="20"
                            TextColor="White" />
-                    <Label Text="Comece cadastrando seus primeiros produtos na aba \"Cadastrar Produto\""
+                    <Label Text="Comece cadastrando seus primeiros produtos na aba &quot;Cadastrar Produto&quot;"
                            FontSize="18"
                            TextColor="#C7D2FE" />
                 </VerticalStackLayout>
