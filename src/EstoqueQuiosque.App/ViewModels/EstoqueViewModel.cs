@@ -10,54 +10,46 @@ namespace EstoqueQuiosque.App.ViewModels;
 public class EstoqueViewModel : INotifyPropertyChanged
 {
     private readonly EstoqueService _estoqueService;
-    private Produto? _produtoSelecionado;
-    private int _quantidadeMovimento = 1;
-    private string _observacao = string.Empty;
-    private string _mensagemStatus = "Pronto para registrar movimentos.";
+    private string _textoBusca = string.Empty;
+    private string _categoriaSelecionada = "Todas as Categorias";
+    private string _mensagemStatus = "Visualize e gerencie seu estoque.";
 
     public EstoqueViewModel(EstoqueService estoqueService)
     {
         _estoqueService = estoqueService;
         _estoqueService.DadosAtualizados += AtualizarDados;
 
-        RegistrarEntradaCommand = new Command(RegistrarEntrada, PodeRegistrarMovimento);
-        RegistrarSaidaCommand = new Command(RegistrarSaida, PodeRegistrarMovimento);
+        RemoverProdutoCommand = new Command<Produto>(RemoverProduto);
         AtualizarDados();
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public ObservableCollection<Produto> Produtos { get; } = [];
-    public ObservableCollection<MovimentoEstoque> MovimentosRecentes { get; } = [];
+    public ObservableCollection<Produto> ProdutosFiltrados { get; } = [];
+    public ObservableCollection<string> Categorias { get; } = [];
 
-    public Produto? ProdutoSelecionado
+    public string TextoBusca
     {
-        get => _produtoSelecionado;
+        get => _textoBusca;
         set
         {
-            if (SetProperty(ref _produtoSelecionado, value))
+            if (SetProperty(ref _textoBusca, value))
             {
-                AtualizarComandos();
+                AplicarFiltros();
             }
         }
     }
 
-    public int QuantidadeMovimento
+    public string CategoriaSelecionada
     {
-        get => _quantidadeMovimento;
+        get => _categoriaSelecionada;
         set
         {
-            if (SetProperty(ref _quantidadeMovimento, value))
+            if (SetProperty(ref _categoriaSelecionada, value))
             {
-                AtualizarComandos();
+                AplicarFiltros();
             }
         }
-    }
-
-    public string Observacao
-    {
-        get => _observacao;
-        set => SetProperty(ref _observacao, value);
     }
 
     public string MensagemStatus
@@ -66,55 +58,66 @@ public class EstoqueViewModel : INotifyPropertyChanged
         set => SetProperty(ref _mensagemStatus, value);
     }
 
-    public ICommand RegistrarEntradaCommand { get; }
-    public ICommand RegistrarSaidaCommand { get; }
+    public ICommand RemoverProdutoCommand { get; }
 
     private void AtualizarDados()
     {
-        var produtoSelecionadoId = ProdutoSelecionado?.Id;
+        var categorias = _estoqueService.ListarProdutos()
+            .Select(p => p.Categoria)
+            .Where(c => !string.IsNullOrWhiteSpace(c))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(c => c)
+            .ToList();
 
-        Produtos.Clear();
-        foreach (var produto in _estoqueService.ListarProdutos())
+        Categorias.Clear();
+        Categorias.Add("Todas as Categorias");
+        foreach (var categoria in categorias)
         {
-            Produtos.Add(produto);
+            Categorias.Add(categoria);
         }
 
-        MovimentosRecentes.Clear();
-        foreach (var movimento in _estoqueService.ListarMovimentos())
+        if (!Categorias.Contains(CategoriaSelecionada))
         {
-            MovimentosRecentes.Add(movimento);
+            CategoriaSelecionada = "Todas as Categorias";
         }
 
-        ProdutoSelecionado = Produtos.FirstOrDefault(p => p.Id == produtoSelecionadoId) ?? Produtos.FirstOrDefault();
-        AtualizarComandos();
+        AplicarFiltros();
     }
 
-    private bool PodeRegistrarMovimento() => ProdutoSelecionado is not null && QuantidadeMovimento > 0;
-
-    private void RegistrarEntrada()
+    private void AplicarFiltros()
     {
-        if (ProdutoSelecionado is null)
+        var produtos = _estoqueService.ListarProdutos().AsEnumerable();
+
+        if (!string.IsNullOrWhiteSpace(TextoBusca))
         {
-            return;
+            produtos = produtos.Where(p =>
+                p.Nome.Contains(TextoBusca, StringComparison.OrdinalIgnoreCase) ||
+                p.Codigo.Contains(TextoBusca, StringComparison.OrdinalIgnoreCase));
         }
 
-        _estoqueService.RegistrarEntrada(ProdutoSelecionado.Id, QuantidadeMovimento, Observacao);
-        MensagemStatus = $"Entrada registrada para {ProdutoSelecionado.Nome}.";
-        Observacao = string.Empty;
+        if (!string.Equals(CategoriaSelecionada, "Todas as Categorias", StringComparison.OrdinalIgnoreCase))
+        {
+            produtos = produtos.Where(p => string.Equals(p.Categoria, CategoriaSelecionada, StringComparison.OrdinalIgnoreCase));
+        }
+
+        ProdutosFiltrados.Clear();
+        foreach (var produto in produtos)
+        {
+            ProdutosFiltrados.Add(produto);
+        }
     }
 
-    private void RegistrarSaida()
+    private void RemoverProduto(Produto? produto)
     {
-        if (ProdutoSelecionado is null)
+        if (produto is null)
         {
             return;
         }
 
         try
         {
-            _estoqueService.RegistrarSaida(ProdutoSelecionado.Id, QuantidadeMovimento, Observacao);
-            MensagemStatus = $"Saída registrada para {ProdutoSelecionado.Nome}.";
-            Observacao = string.Empty;
+            _estoqueService.RemoverProduto(produto.Id);
+            MensagemStatus = $"Produto '{produto.Nome}' removido com sucesso.";
         }
         catch (InvalidOperationException ex)
         {
@@ -136,10 +139,4 @@ public class EstoqueViewModel : INotifyPropertyChanged
 
     private void OnPropertyChanged([CallerMemberName] string propertyName = "") =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-    private void AtualizarComandos()
-    {
-        (RegistrarEntradaCommand as Command)?.ChangeCanExecute();
-        (RegistrarSaidaCommand as Command)?.ChangeCanExecute();
-    }
 }
