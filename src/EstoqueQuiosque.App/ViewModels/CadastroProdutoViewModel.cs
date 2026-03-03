@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -16,7 +15,7 @@ public class CadastroProdutoViewModel : INotifyPropertyChanged
     private string _categoria = string.Empty;
     private int _quantidadeInicial;
     private int _estoqueMinimo;
-    private decimal _custoUnitario;
+    private decimal _custoLote;
     private decimal _precoVenda;
     private string _descricao = string.Empty;
     private string _mensagemStatus = "Cadastre um novo produto para iniciar o controle.";
@@ -24,19 +23,23 @@ public class CadastroProdutoViewModel : INotifyPropertyChanged
     public CadastroProdutoViewModel(EstoqueService estoqueService)
     {
         _estoqueService = estoqueService;
-        _estoqueService.DadosAtualizados += AtualizarLista;
 
-        CadastrarProdutoCommand = new Command(CadastrarProduto, PodeCadastrarProduto);
-        AtualizarProdutoCommand = new Command(AtualizarProduto, PodeAtualizarProduto);
+        CadastrarProdutoCommand = new Command(async () => await CadastrarProdutoAsync(), PodeCadastrarProduto);
+        AtualizarProdutoCommand = new Command(async () => await AtualizarProdutoAsync(), PodeAtualizarProduto);
         LimparFormularioCommand = new Command(LimparFormulario);
-        AtualizarLista();
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public ObservableCollection<Produto> ProdutosCadastrados { get; } = [];
-
-    public List<string> Categorias { get; } = ["Informática", "Eletrônicos", "Escritório", "Acessórios", "Outros"];
+    public List<string> Categorias { get; } =
+    [
+        "Bebidas",
+        "Lanches",
+        "Salgados",
+        "Doces",
+        "Sorvetes",
+        "Outros"
+    ];
 
     public Produto? ProdutoSelecionadoParaEdicao
     {
@@ -52,7 +55,7 @@ public class CadastroProdutoViewModel : INotifyPropertyChanged
                     Categoria = value.Categoria;
                     QuantidadeInicial = value.QuantidadeAtual;
                     EstoqueMinimo = value.EstoqueMinimo;
-                    CustoUnitario = value.CustoUnitario;
+                    CustoLote = value.CustoUnitario * value.QuantidadeAtual;
                     PrecoVenda = value.PrecoVenda;
                     Descricao = value.Descricao;
                     MensagemStatus = $"Editando produto: {value.Nome}";
@@ -67,25 +70,13 @@ public class CadastroProdutoViewModel : INotifyPropertyChanged
     public string NomeProduto
     {
         get => _nomeProduto;
-        set
-        {
-            if (SetProperty(ref _nomeProduto, value))
-            {
-                AtualizarComandos();
-            }
-        }
+        set { if (SetProperty(ref _nomeProduto, value)) AtualizarComandos(); }
     }
 
     public string CodigoProduto
     {
         get => _codigoProduto;
-        set
-        {
-            if (SetProperty(ref _codigoProduto, value))
-            {
-                AtualizarComandos();
-            }
-        }
+        set { if (SetProperty(ref _codigoProduto, value)) AtualizarComandos(); }
     }
 
     public string Categoria
@@ -97,7 +88,11 @@ public class CadastroProdutoViewModel : INotifyPropertyChanged
     public int QuantidadeInicial
     {
         get => _quantidadeInicial;
-        set => SetProperty(ref _quantidadeInicial, value);
+        set
+        {
+            if (SetProperty(ref _quantidadeInicial, value))
+                OnPropertyChanged(nameof(CustoUnitarioCalculado));
+        }
     }
 
     public int EstoqueMinimo
@@ -106,11 +101,21 @@ public class CadastroProdutoViewModel : INotifyPropertyChanged
         set => SetProperty(ref _estoqueMinimo, value);
     }
 
-    public decimal CustoUnitario
+    public decimal CustoLote
     {
-        get => _custoUnitario;
-        set => SetProperty(ref _custoUnitario, value);
+        get => _custoLote;
+        set
+        {
+            if (SetProperty(ref _custoLote, value))
+                OnPropertyChanged(nameof(CustoUnitarioCalculado));
+        }
     }
+
+    // Exibido em tempo real no formulário
+    public string CustoUnitarioCalculado =>
+        QuantidadeInicial > 0
+            ? $"Custo unitário: R$ {CustoLote / QuantidadeInicial:N2}"
+            : "Informe a quantidade para calcular";
 
     public decimal PrecoVenda
     {
@@ -136,20 +141,6 @@ public class CadastroProdutoViewModel : INotifyPropertyChanged
     public ICommand AtualizarProdutoCommand { get; }
     public ICommand LimparFormularioCommand { get; }
 
-    private void AtualizarLista()
-    {
-        var produtoSelecionadoId = ProdutoSelecionadoParaEdicao?.Id;
-
-        ProdutosCadastrados.Clear();
-        foreach (var produto in _estoqueService.ListarProdutos())
-        {
-            ProdutosCadastrados.Add(produto);
-        }
-
-        ProdutoSelecionadoParaEdicao = ProdutosCadastrados.FirstOrDefault(p => p.Id == produtoSelecionadoId);
-        AtualizarComandos();
-    }
-
     private bool PodeCadastrarProduto() =>
         !string.IsNullOrWhiteSpace(NomeProduto) &&
         !string.IsNullOrWhiteSpace(CodigoProduto) &&
@@ -160,19 +151,15 @@ public class CadastroProdutoViewModel : INotifyPropertyChanged
         !string.IsNullOrWhiteSpace(CodigoProduto) &&
         EstaEmEdicao;
 
-    private void CadastrarProduto()
+    private async Task CadastrarProdutoAsync()
     {
         try
         {
-            _estoqueService.CadastrarProduto(
-                NomeProduto,
-                CodigoProduto,
-                Categoria,
-                QuantidadeInicial,
-                EstoqueMinimo,
-                CustoUnitario,
-                PrecoVenda,
-                Descricao);
+            var custoUnitario = QuantidadeInicial > 0 ? CustoLote / QuantidadeInicial : 0;
+            await _estoqueService.CadastrarProdutoAsync(
+                NomeProduto, CodigoProduto, Categoria,
+                QuantidadeInicial, EstoqueMinimo,
+                custoUnitario, PrecoVenda, Descricao);
 
             MensagemStatus = $"Produto '{NomeProduto.Trim()}' cadastrado com sucesso.";
             LimparFormulario();
@@ -181,27 +168,25 @@ public class CadastroProdutoViewModel : INotifyPropertyChanged
         {
             MensagemStatus = ex.Message;
         }
+        catch (Exception ex)
+        {
+            MensagemStatus = $"Erro: {ex.Message}";
+        }
     }
 
-    private void AtualizarProduto()
+    private async Task AtualizarProdutoAsync()
     {
         if (ProdutoSelecionadoParaEdicao is null)
-        {
             return;
-        }
 
         try
         {
-            _estoqueService.AtualizarProduto(
+            var custoUnitario = QuantidadeInicial > 0 ? CustoLote / QuantidadeInicial : 0;
+            await _estoqueService.AtualizarProdutoAsync(
                 ProdutoSelecionadoParaEdicao.Id,
-                NomeProduto,
-                CodigoProduto,
-                Categoria,
-                QuantidadeInicial,
-                EstoqueMinimo,
-                CustoUnitario,
-                PrecoVenda,
-                Descricao);
+                NomeProduto, CodigoProduto, Categoria,
+                QuantidadeInicial, EstoqueMinimo,
+                custoUnitario, PrecoVenda, Descricao);
 
             MensagemStatus = $"Produto '{NomeProduto.Trim()}' atualizado com sucesso.";
             LimparFormulario();
@@ -209,6 +194,10 @@ public class CadastroProdutoViewModel : INotifyPropertyChanged
         catch (InvalidOperationException ex)
         {
             MensagemStatus = ex.Message;
+        }
+        catch (Exception ex)
+        {
+            MensagemStatus = $"Erro: {ex.Message}";
         }
     }
 
@@ -220,7 +209,7 @@ public class CadastroProdutoViewModel : INotifyPropertyChanged
         Categoria = string.Empty;
         QuantidadeInicial = 0;
         EstoqueMinimo = 0;
-        CustoUnitario = 0;
+        CustoLote = 0;
         PrecoVenda = 0;
         Descricao = string.Empty;
         MensagemStatus = "Pronto para cadastrar um novo produto.";
@@ -231,9 +220,7 @@ public class CadastroProdutoViewModel : INotifyPropertyChanged
     private bool SetProperty<T>(ref T backingStore, T value, [CallerMemberName] string propertyName = "")
     {
         if (EqualityComparer<T>.Default.Equals(backingStore, value))
-        {
             return false;
-        }
 
         backingStore = value;
         OnPropertyChanged(propertyName);

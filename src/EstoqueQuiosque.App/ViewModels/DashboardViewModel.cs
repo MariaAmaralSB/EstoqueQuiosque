@@ -16,8 +16,8 @@ public class DashboardViewModel : INotifyPropertyChanged
     public DashboardViewModel(EstoqueService estoqueService)
     {
         _estoqueService = estoqueService;
-        _estoqueService.DadosAtualizados += AtualizarIndicadores;
-        AtualizarIndicadores();
+        _estoqueService.DadosAtualizados += () => _ = Task.Run(AtualizarIndicadoresAsync);
+        _ = Task.Run(AtualizarIndicadoresAsync);
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -46,22 +46,30 @@ public class DashboardViewModel : INotifyPropertyChanged
         set => SetProperty(ref _estoqueBaixo, value);
     }
 
-    private void AtualizarIndicadores()
+    private async Task AtualizarIndicadoresAsync()
     {
-        var produtos = _estoqueService.ListarProdutos();
+        try
+        {
+            var produtos = await _estoqueService.ListarProdutosAsync();
 
-        TotalProdutos = produtos.Count;
-        ProdutosAtivos = produtos.Count(p => p.QuantidadeAtual > 0);
-        EstoqueBaixo = produtos.Count(p => p.AbaixoDoMinimo);
-        ValorEmEstoque = produtos.Sum(p => p.ValorEmEstoque);
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                TotalProdutos = produtos.Count;
+                ProdutosAtivos = produtos.Count(p => p.QuantidadeAtual > 0);
+                EstoqueBaixo = produtos.Count(p => p.AbaixoDoMinimo);
+                ValorEmEstoque = produtos.Sum(p => p.ValorEmEstoque);
+            });
+        }
+        catch
+        {
+            // Dashboard não atualiza se não houver conexão
+        }
     }
 
     private void SetProperty<T>(ref T backingStore, T value, [CallerMemberName] string propertyName = "")
     {
         if (EqualityComparer<T>.Default.Equals(backingStore, value))
-        {
             return;
-        }
 
         backingStore = value;
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

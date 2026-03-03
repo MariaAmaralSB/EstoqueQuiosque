@@ -17,6 +17,14 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
+        var supabaseOptions = new Supabase.SupabaseOptions
+        {
+            AutoRefreshToken = false,
+            AutoConnectRealtime = false
+        };
+        var supabase = new Supabase.Client(SupabaseConfig.Url, SupabaseConfig.Key, supabaseOptions);
+
+        builder.Services.AddSingleton(supabase);
         builder.Services.AddSingleton<EstoqueService>();
         builder.Services.AddSingleton<DashboardViewModel>();
         builder.Services.AddSingleton<EstoqueViewModel>();

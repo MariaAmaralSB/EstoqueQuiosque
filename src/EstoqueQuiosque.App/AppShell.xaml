@@ -5,17 +5,17 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:pages="clr-namespace:EstoqueQuiosque.App.Pages"
     Shell.FlyoutBehavior="Disabled"
-    Shell.BackgroundColor="#2643B2"
+    Shell.BackgroundColor="#0D1117"
     Shell.ForegroundColor="White"
     Shell.TitleColor="White"
     Shell.NavBarHasShadow="False"
     Title="Controle de Estoque">
 
-    <TabBar Shell.TabBarBackgroundColor="#FFFFFF"
-            Shell.TabBarForegroundColor="#475569"
-            Shell.TabBarTitleColor="#334155"
+    <TabBar Shell.TabBarBackgroundColor="#0D1117"
+            Shell.TabBarForegroundColor="#3B82F6"
+            Shell.TabBarTitleColor="#F1F5F9"
             Shell.TabBarUnselectedColor="#64748B"
-            Shell.TabBarDisabledColor="#94A3B8">
+            Shell.TabBarDisabledColor="#4B5563">
         <Tab Title="Dashboard">
             <ShellContent
                 Title="Dashboard"
@@ -23,7 +23,7 @@
                 Route="DashboardPage" />
         </Tab>
 
-        <Tab Title="Cadastrar Produto">
+        <Tab Title="+ Cadastrar Produto">
             <ShellContent
                 Title="Cadastrar Produto"
                 ContentTemplate="{DataTemplate pages:CadastroProdutoPage}"

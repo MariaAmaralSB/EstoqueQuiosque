@@ -6,71 +6,96 @@
              Title="Conferir Produtos">
 
     <ScrollView>
-        <VerticalStackLayout Padding="32,24" Spacing="18">
+        <VerticalStackLayout Padding="32,24" Spacing="16">
+
             <Label Text="Conferir Produtos" Style="{StaticResource PageTitleStyle}" />
             <Label Text="Visualize e gerencie seu estoque" Style="{StaticResource PageSubtitleStyle}" />
 
+            <!-- Barra de busca -->
             <Frame Style="{StaticResource SectionCardStyle}" Padding="14">
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                    <Entry Placeholder="Buscar por nome ou código..."
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                    <Entry Placeholder="🔍  Buscar por nome ou código..."
                            Text="{Binding TextoBusca}" />
                     <Picker Grid.Column="1"
+                            MinimumWidthRequest="200"
                             ItemsSource="{Binding Categorias}"
                             SelectedItem="{Binding CategoriaSelecionada}" />
                 </Grid>
             </Frame>
 
+            <!-- Lista de produtos -->
             <CollectionView ItemsSource="{Binding ProdutosFiltrados}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:Produto">
-                        <Frame Style="{StaticResource SectionCardStyle}" Margin="0,0,0,12">
-                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
-                                <HorizontalStackLayout Spacing="10">
-                                    <Label Text="{Binding Nome}" FontAttributes="Bold" FontSize="28" />
+                        <Frame Style="{StaticResource SectionCardStyle}" Margin="0,0,0,10">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="14">
+
+                                <!-- Nome + badge -->
+                                <HorizontalStackLayout Spacing="10" VerticalOptions="Center">
+                                    <Label Text="{Binding Nome}" FontAttributes="Bold" FontSize="15" />
                                     <Frame IsVisible="{Binding AbaixoDoMinimo}"
-                                           BackgroundColor="#FDEBD7"
-                                           BorderColor="#FDEBD7"
-                                           CornerRadius="12"
-                                           Padding="12,4"
+                                           BackgroundColor="#431407"
+                                           BorderColor="#9A3412"
+                                           CornerRadius="20"
+                                           Padding="10,3"
                                            HasShadow="False">
-                                        <Label Text="⚠ Estoque Baixo" TextColor="#C2410C" FontAttributes="Bold" FontSize="14"/>
+                                        <Label Text="⚠ Estoque Baixo"
+                                               TextColor="#FB923C" FontAttributes="Bold" FontSize="11" />
                                     </Frame>
                                 </HorizontalStackLayout>
 
-                                <HorizontalStackLayout Grid.Column="1" Spacing="8">
+                                <!-- Botões de ação -->
+                                <HorizontalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                                    <Button Text="💰"
+                                            BackgroundColor="Transparent"
+                                            TextColor="#4ADE80"
+                                            FontSize="15"
+                                            Padding="8,4"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RegistrarVendaCommand}"
+                                            CommandParameter="{Binding .}" />
                                     <Button Text="✏"
                                             BackgroundColor="Transparent"
-                                            TextColor="#1D4ED8" />
+                                            TextColor="#60A5FA"
+                                            FontSize="15"
+                                            Padding="8,4"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditarProdutoCommand}"
+                                            CommandParameter="{Binding .}" />
                                     <Button Text="🗑"
                                             BackgroundColor="Transparent"
-                                            TextColor="#DC2626"
+                                            TextColor="#F87171"
+                                            FontSize="15"
+                                            Padding="8,4"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoverProdutoCommand}"
                                             CommandParameter="{Binding .}" />
                                 </HorizontalStackLayout>
 
-                                <Grid Grid.Row="1" Grid.ColumnSpan="2" ColumnDefinitions="*,*,*,*" Margin="0,12,0,0">
-                                    <VerticalStackLayout Spacing="4">
+                                <!-- Dados do produto -->
+                                <Grid Grid.Row="1" Grid.ColumnSpan="2"
+                                      ColumnDefinitions="*,*,*,*">
+
+                                    <VerticalStackLayout Spacing="3">
                                         <Label Text="Código" Style="{StaticResource CardLabelStyle}" />
-                                        <Label Text="{Binding Codigo}" FontSize="22" FontAttributes="Bold" />
+                                        <Label Text="{Binding Codigo}" FontSize="13" FontAttributes="Bold" />
                                     </VerticalStackLayout>
 
-                                    <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                    <VerticalStackLayout Grid.Column="1" Spacing="3">
                                         <Label Text="Categoria" Style="{StaticResource CardLabelStyle}" />
-                                        <Label Text="{Binding Categoria}" FontSize="22" FontAttributes="Bold" />
+                                        <Label Text="{Binding Categoria}" FontSize="13" FontAttributes="Bold" />
                                     </VerticalStackLayout>
 
-                                    <VerticalStackLayout Grid.Column="2" Spacing="4">
+                                    <VerticalStackLayout Grid.Column="2" Spacing="3">
                                         <Label Text="Quantidade" Style="{StaticResource CardLabelStyle}" />
                                         <Label Text="{Binding QuantidadeAtual, StringFormat='{0} un'}"
-                                               FontSize="22"
-                                               FontAttributes="Bold"
+                                               FontSize="13" FontAttributes="Bold"
                                                TextColor="{Binding AbaixoDoMinimo, Converter={StaticResource LowStockColorConverter}}" />
                                     </VerticalStackLayout>
 
-                                    <VerticalStackLayout Grid.Column="3" Spacing="4">
+                                    <VerticalStackLayout Grid.Column="3" Spacing="3">
                                         <Label Text="Preço" Style="{StaticResource CardLabelStyle}" />
-                                        <Label Text="{Binding PrecoVenda, StringFormat='R$ {0:F2}'}" FontSize="22" FontAttributes="Bold" />
+                                        <Label Text="{Binding PrecoVenda, StringFormat='R$ {0:F2}'}"
+                                               FontSize="13" FontAttributes="Bold" />
                                     </VerticalStackLayout>
+
                                 </Grid>
                             </Grid>
                         </Frame>
@@ -78,9 +103,11 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
+            <!-- Status -->
             <Frame Style="{StaticResource StatusFrameStyle}">
-                <Label Text="{Binding MensagemStatus}" />
+                <Label Text="{Binding MensagemStatus}" FontSize="13" />
             </Frame>
+
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

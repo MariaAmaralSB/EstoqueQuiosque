@@ -1,61 +1,37 @@
 using EstoqueQuiosque.App.Models;
+using static Postgrest.Constants;
 
 namespace EstoqueQuiosque.App.Services;
 
 public class EstoqueService
 {
-    private readonly List<Produto> _produtos =
-    [
-        new Produto
-        {
-            Nome = "Notebook Dell Inspiron",
-            Codigo = "PROD-001",
-            Categoria = "Informática",
-            Unidade = "un",
-            QuantidadeAtual = 5,
-            EstoqueMinimo = 3,
-            CustoUnitario = 2800m,
-            PrecoVenda = 3500m,
-            Descricao = "Notebook para uso corporativo"
-        },
-        new Produto
-        {
-            Nome = "Mouse Logitech MX",
-            Codigo = "PROD-002",
-            Categoria = "Eletrônicos",
-            Unidade = "un",
-            QuantidadeAtual = 2,
-            EstoqueMinimo = 3,
-            CustoUnitario = 180m,
-            PrecoVenda = 250m,
-            Descricao = "Mouse sem fio ergonômico"
-        },
-        new Produto
-        {
-            Nome = "Teclado Mecânico RGB",
-            Codigo = "PROD-003",
-            Categoria = "Eletrônicos",
-            Unidade = "un",
-            QuantidadeAtual = 15,
-            EstoqueMinimo = 4,
-            CustoUnitario = 320m,
-            PrecoVenda = 450m,
-            Descricao = "Teclado com iluminação RGB"
-        }
-    ];
-
-    private readonly List<MovimentoEstoque> _movimentos = [];
+    private readonly Supabase.Client _supabase;
 
     public event Action? DadosAtualizados;
 
-    public IReadOnlyList<Produto> ListarProdutos() => _produtos.OrderBy(p => p.Nome).ToList();
+    public EstoqueService(Supabase.Client supabase)
+    {
+        _supabase = supabase;
+    }
 
-    public IReadOnlyList<MovimentoEstoque> ListarMovimentos() => _movimentos
-        .OrderByDescending(m => m.Data)
-        .Take(20)
-        .ToList();
+    public async Task<IReadOnlyList<Produto>> ListarProdutosAsync()
+    {
+        var result = await _supabase.From<Produto>()
+            .Order("nome", Ordering.Ascending)
+            .Get();
+        return result.Models;
+    }
 
-    public void CadastrarProduto(
+    public async Task<IReadOnlyList<MovimentoEstoque>> ListarMovimentosAsync()
+    {
+        var result = await _supabase.From<MovimentoEstoque>()
+            .Order("data", Ordering.Descending)
+            .Limit(20)
+            .Get();
+        return result.Models;
+    }
+
+    public async Task CadastrarProdutoAsync(
         string nome,
         string codigo,
         string categoria,
@@ -70,13 +46,16 @@ public class EstoqueService
 
         ValidarDadosProduto(nomeNormalizado, codigoNormalizado, quantidadeInicial, estoqueMinimo, custoUnitario, precoVenda);
 
-        if (_produtos.Any(p => string.Equals(p.Codigo, codigoNormalizado, StringComparison.OrdinalIgnoreCase)))
-        {
-            throw new InvalidOperationException("Já existe um produto com esse código.");
-        }
+        var existente = await _supabase.From<Produto>()
+            .Filter("codigo", Operator.Equals, codigoNormalizado)
+            .Get();
 
-        _produtos.Add(new Produto
+        if (existente.Models.Count > 0)
+            throw new InvalidOperationException("Já existe um produto com esse código.");
+
+        var produto = new Produto
         {
+            Id = Guid.NewGuid(),
             Nome = nomeNormalizado,
             Codigo = codigoNormalizado,
             Categoria = string.IsNullOrWhiteSpace(categoria) ? "Geral" : categoria.Trim(),
@@ -86,12 +65,13 @@ public class EstoqueService
             CustoUnitario = custoUnitario,
             PrecoVenda = precoVenda,
             Descricao = descricao.Trim()
-        });
+        };
 
+        await _supabase.From<Produto>().Insert(produto);
         NotificarAtualizacao();
     }
 
-    public void AtualizarProduto(
+    public async Task AtualizarProdutoAsync(
         Guid produtoId,
         string nome,
         string codigo,
@@ -102,18 +82,25 @@ public class EstoqueService
         decimal precoVenda,
         string descricao)
     {
-        var produto = _produtos.FirstOrDefault(p => p.Id == produtoId)
-                     ?? throw new InvalidOperationException("Produto não encontrado para atualização.");
-
         var nomeNormalizado = nome.Trim();
         var codigoNormalizado = codigo.Trim().ToUpperInvariant();
 
         ValidarDadosProduto(nomeNormalizado, codigoNormalizado, quantidadeAtual, estoqueMinimo, custoUnitario, precoVenda);
 
-        if (_produtos.Any(p => p.Id != produtoId && string.Equals(p.Codigo, codigoNormalizado, StringComparison.OrdinalIgnoreCase)))
-        {
+        var duplicado = await _supabase.From<Produto>()
+            .Filter("codigo", Operator.Equals, codigoNormalizado)
+            .Filter("id", Operator.NotEqual, produtoId.ToString())
+            .Get();
+
+        if (duplicado.Models.Count > 0)
             throw new InvalidOperationException("Já existe outro produto com esse código.");
-        }
+
+        var resultado = await _supabase.From<Produto>()
+            .Filter("id", Operator.Equals, produtoId.ToString())
+            .Get();
+
+        var produto = resultado.Models.FirstOrDefault()
+            ?? throw new InvalidOperationException("Produto não encontrado para atualização.");
 
         produto.Nome = nomeNormalizado;
         produto.Codigo = codigoNormalizado;
@@ -124,27 +111,34 @@ public class EstoqueService
         produto.PrecoVenda = precoVenda;
         produto.Descricao = descricao.Trim();
 
+        await _supabase.From<Produto>().Update(produto);
         NotificarAtualizacao();
     }
 
-    public void RemoverProduto(Guid produtoId)
+    public async Task RemoverProdutoAsync(Guid produtoId)
     {
-        var produto = _produtos.FirstOrDefault(p => p.Id == produtoId)
-                     ?? throw new InvalidOperationException("Produto não encontrado para exclusão.");
+        await _supabase.From<Produto>()
+            .Filter("id", Operator.Equals, produtoId.ToString())
+            .Delete();
 
-        _produtos.Remove(produto);
         NotificarAtualizacao();
     }
 
-    public void RegistrarEntrada(Guid produtoId, int quantidade, string observacao)
+    public async Task RegistrarEntradaAsync(Guid produtoId, int quantidade, string observacao)
     {
-        var produto = _produtos.FirstOrDefault(p => p.Id == produtoId)
-                     ?? throw new InvalidOperationException("Produto não encontrado.");
+        var resultado = await _supabase.From<Produto>()
+            .Filter("id", Operator.Equals, produtoId.ToString())
+            .Get();
+
+        var produto = resultado.Models.FirstOrDefault()
+            ?? throw new InvalidOperationException("Produto não encontrado.");
 
         produto.QuantidadeAtual += quantidade;
+        await _supabase.From<Produto>().Update(produto);
 
-        _movimentos.Add(new MovimentoEstoque
+        await _supabase.From<MovimentoEstoque>().Insert(new MovimentoEstoque
         {
+            Id = Guid.NewGuid(),
             ProdutoNome = produto.Nome,
             Quantidade = quantidade,
             Tipo = "Entrada",
@@ -154,20 +148,24 @@ public class EstoqueService
         NotificarAtualizacao();
     }
 
-    public void RegistrarSaida(Guid produtoId, int quantidade, string observacao)
+    public async Task RegistrarSaidaAsync(Guid produtoId, int quantidade, string observacao)
     {
-        var produto = _produtos.FirstOrDefault(p => p.Id == produtoId)
-                     ?? throw new InvalidOperationException("Produto não encontrado.");
+        var resultado = await _supabase.From<Produto>()
+            .Filter("id", Operator.Equals, produtoId.ToString())
+            .Get();
+
+        var produto = resultado.Models.FirstOrDefault()
+            ?? throw new InvalidOperationException("Produto não encontrado.");
 
         if (quantidade > produto.QuantidadeAtual)
-        {
             throw new InvalidOperationException("Quantidade de saída maior que o estoque disponível.");
-        }
 
         produto.QuantidadeAtual -= quantidade;
+        await _supabase.From<Produto>().Update(produto);
 
-        _movimentos.Add(new MovimentoEstoque
+        await _supabase.From<MovimentoEstoque>().Insert(new MovimentoEstoque
         {
+            Id = Guid.NewGuid(),
             ProdutoNome = produto.Nome,
             Quantidade = quantidade,
             Tipo = "Saída",
@@ -180,24 +178,16 @@ public class EstoqueService
     private static void ValidarDadosProduto(string nome, string codigo, int quantidade, int estoqueMinimo, decimal custoUnitario, decimal precoVenda)
     {
         if (string.IsNullOrWhiteSpace(nome))
-        {
             throw new InvalidOperationException("Informe o nome do produto.");
-        }
 
         if (string.IsNullOrWhiteSpace(codigo))
-        {
             throw new InvalidOperationException("Informe o código do produto.");
-        }
 
         if (quantidade < 0 || estoqueMinimo < 0)
-        {
             throw new InvalidOperationException("Quantidade e estoque mínimo devem ser maiores ou iguais a zero.");
-        }
 
         if (custoUnitario < 0 || precoVenda < 0)
-        {
             throw new InvalidOperationException("Os preços devem ser maiores ou iguais a zero.");
-        }
     }
 
     private void NotificarAtualizacao() => DadosAtualizados?.Invoke();

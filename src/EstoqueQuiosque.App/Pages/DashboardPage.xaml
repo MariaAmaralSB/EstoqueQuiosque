@@ -5,51 +5,94 @@
              Title="Dashboard">
 
     <ScrollView>
-        <VerticalStackLayout Padding="32,24" Spacing="18">
+        <VerticalStackLayout Padding="32,24" Spacing="20">
+
             <Label Text="Dashboard" Style="{StaticResource PageTitleStyle}" />
             <Label Text="Visão geral do seu estoque" Style="{StaticResource PageSubtitleStyle}" />
 
-            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="16" RowSpacing="16">
+            <!-- 4 cards em linha -->
+            <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="14">
+
+                <!-- Total de Produtos -->
                 <Frame Style="{StaticResource CardStyle}">
-                    <VerticalStackLayout Spacing="8">
+                    <VerticalStackLayout Spacing="14">
+                        <Frame BackgroundColor="#1A3A5C" BorderColor="#1A3A5C" CornerRadius="8"
+                               Padding="0" WidthRequest="42" HeightRequest="42" HasShadow="False"
+                               HorizontalOptions="Start">
+                            <Label Text="📦" FontSize="20"
+                                   HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                        </Frame>
                         <Label Text="Total de Produtos" Style="{StaticResource CardLabelStyle}" />
                         <Label Text="{Binding TotalProdutos}" Style="{StaticResource CardValueStyle}" />
                     </VerticalStackLayout>
                 </Frame>
 
+                <!-- Valor em Estoque -->
                 <Frame Grid.Column="1" Style="{StaticResource CardStyle}">
-                    <VerticalStackLayout Spacing="8">
+                    <VerticalStackLayout Spacing="14">
+                        <Frame BackgroundColor="#14432A" BorderColor="#14432A" CornerRadius="8"
+                               Padding="0" WidthRequest="42" HeightRequest="42" HasShadow="False"
+                               HorizontalOptions="Start">
+                            <Label Text="💲" FontSize="20"
+                                   HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                        </Frame>
                         <Label Text="Valor em Estoque" Style="{StaticResource CardLabelStyle}" />
-                        <Label Text="{Binding ValorEmEstoque, StringFormat='R$ {0:N2}'}" Style="{StaticResource CardValueStyle}" />
+                        <Label Text="{Binding ValorEmEstoque, StringFormat='R$ {0:N2}'}"
+                               Style="{StaticResource CardValueStyle}" />
                     </VerticalStackLayout>
                 </Frame>
 
-                <Frame Grid.Row="1" Style="{StaticResource CardStyle}">
-                    <VerticalStackLayout Spacing="8">
+                <!-- Produtos Ativos -->
+                <Frame Grid.Column="2" Style="{StaticResource CardStyle}">
+                    <VerticalStackLayout Spacing="14">
+                        <Frame BackgroundColor="#2D1F52" BorderColor="#2D1F52" CornerRadius="8"
+                               Padding="0" WidthRequest="42" HeightRequest="42" HasShadow="False"
+                               HorizontalOptions="Start">
+                            <Label Text="📈" FontSize="20"
+                                   HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                        </Frame>
                         <Label Text="Produtos Ativos" Style="{StaticResource CardLabelStyle}" />
                         <Label Text="{Binding ProdutosAtivos}" Style="{StaticResource CardValueStyle}" />
                     </VerticalStackLayout>
                 </Frame>
 
-                <Frame Grid.Row="1" Grid.Column="1" Style="{StaticResource CardStyle}">
-                    <VerticalStackLayout Spacing="8">
+                <!-- Estoque Baixo -->
+                <Frame Grid.Column="3" Style="{StaticResource CardStyle}">
+                    <VerticalStackLayout Spacing="14">
+                        <Frame BackgroundColor="#5C2008" BorderColor="#5C2008" CornerRadius="8"
+                               Padding="0" WidthRequest="42" HeightRequest="42" HasShadow="False"
+                               HorizontalOptions="Start">
+                            <Label Text="⚠" FontSize="20"
+                                   HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                        </Frame>
                         <Label Text="Estoque Baixo" Style="{StaticResource CardLabelStyle}" />
                         <Label Text="{Binding EstoqueBaixo}" Style="{StaticResource CardValueStyle}" />
                     </VerticalStackLayout>
                 </Frame>
+
             </Grid>
 
-            <Frame BackgroundColor="{StaticResource Primary}" BorderColor="{StaticResource Primary}" CornerRadius="14" Padding="22" Margin="0,10,0,0">
-                <VerticalStackLayout Spacing="10">
-                    <Label Text="Bem-vindo ao Sistema de Controle de Estoque" FontSize="34" FontAttributes="Bold" TextColor="White" />
-                    <Label Text="Gerencie seus produtos de forma eficiente. Cadastre novos itens e mantenha o controle total do seu inventário."
-                           FontSize="20"
-                           TextColor="White" />
-                    <Label Text="Comece cadastrando seus primeiros produtos na aba Cadastrar Produto"
-                           FontSize="18"
-                           TextColor="#C7D2FE" />
-                </VerticalStackLayout>
+            <!-- Banner de boas-vindas -->
+            <Frame BackgroundColor="{StaticResource Primary}" BorderColor="{StaticResource Primary}"
+                   CornerRadius="14" Padding="22" Margin="0,6,0,0">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="18">
+                    <Frame BackgroundColor="#5B94F8" BorderColor="#5B94F8" CornerRadius="10"
+                           Padding="0" WidthRequest="52" HeightRequest="52" HasShadow="False"
+                           VerticalOptions="Start">
+                        <Label Text="📦" FontSize="26"
+                               HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                    </Frame>
+                    <VerticalStackLayout Grid.Column="1" Spacing="6">
+                        <Label Text="Bem-vindo ao Sistema de Controle de Estoque"
+                               FontSize="18" FontAttributes="Bold" TextColor="White" />
+                        <Label Text="Gerencie seus produtos de forma eficiente. Cadastre novos itens e mantenha o controle total do seu inventário."
+                               FontSize="14" TextColor="#C7D2FE" />
+                        <Label Text="Comece cadastrando seus primeiros produtos na aba Cadastrar Produto"
+                               FontSize="13" TextColor="#A5B4FC" />
+                    </VerticalStackLayout>
+                </Grid>
             </Frame>
+
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
