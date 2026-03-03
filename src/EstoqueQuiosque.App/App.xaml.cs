@@ -6,8 +6,7 @@ public partial class App : Application
     {
         InitializeComponent();
 
-        // Força tema claro para manter contraste e legibilidade.
-        UserAppTheme = AppTheme.Light;
+        UserAppTheme = AppTheme.Dark;
 
         MainPage = new AppShell();
     }

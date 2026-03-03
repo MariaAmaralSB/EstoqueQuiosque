@@ -1,104 +1,120 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:models="clr-namespace:EstoqueQuiosque.App.Models"
              x:Class="EstoqueQuiosque.App.Pages.CadastroProdutoPage"
-             Title="Produtos">
+             Title="Cadastrar Produto">
 
     <ScrollView>
-        <VerticalStackLayout Padding="16" Spacing="12">
-            <Label Text="Cadastro de Produtos"
-                   FontSize="24"
-                   FontAttributes="Bold"
-                   TextColor="#111827" />
+        <VerticalStackLayout Padding="32,24" Spacing="16">
 
-            <Label Text="Selecionar produto para editar (opcional)" TextColor="#111827" />
-            <Picker ItemsSource="{Binding ProdutosCadastrados}"
-                    ItemDisplayBinding="{Binding Nome}"
-                    SelectedItem="{Binding ProdutoSelecionadoParaEdicao}"
-                    Title="Selecione para editar" />
+            <Label Text="Cadastrar Produto" Style="{StaticResource PageTitleStyle}" />
+            <Label Text="Preencha os dados do novo produto" Style="{StaticResource PageSubtitleStyle}" />
 
-            <Label Text="Nome do produto" TextColor="#111827" />
-            <Entry Placeholder="Ex.: Refrigerante lata"
-                   Text="{Binding NomeProduto}" />
+            <Frame Style="{StaticResource SectionCardStyle}">
+                <VerticalStackLayout Spacing="20">
 
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                <VerticalStackLayout>
-                    <Label Text="Unidade" TextColor="#111827" />
-                    <Entry Placeholder="un"
-                           Text="{Binding Unidade}" />
+                    <!-- ── Informações Básicas ── -->
+                    <HorizontalStackLayout Spacing="10">
+                        <Frame BackgroundColor="#1A3A5C" BorderColor="#1A3A5C" CornerRadius="8"
+                               Padding="0" WidthRequest="32" HeightRequest="32" HasShadow="False">
+                            <Label Text="📦" FontSize="16"
+                                   HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                        </Frame>
+                        <Label Text="Informações Básicas" FontAttributes="Bold" FontSize="15"
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+
+                    <!-- Nome e Código -->
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Nome do Produto *" Style="{StaticResource FieldLabelStyle}" />
+                            <Entry Placeholder="Ex: Cerveja Spaten"
+                                   Text="{Binding NomeProduto}" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="6">
+                            <Label Text="Código *" Style="{StaticResource FieldLabelStyle}" />
+                            <Entry Placeholder="Ex: 001"
+                                   Text="{Binding CodigoProduto}" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <!-- Categoria e Quantidade -->
+                    <Grid ColumnDefinitions="2*,*" ColumnSpacing="16">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Categoria *" Style="{StaticResource FieldLabelStyle}" />
+                            <Picker ItemsSource="{Binding Categorias}"
+                                    SelectedItem="{Binding Categoria}" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="6">
+                            <Label Text="Qtd. em Estoque *" Style="{StaticResource FieldLabelStyle}" />
+                            <Entry Keyboard="Numeric"
+                                   Text="{Binding QuantidadeInicial}" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <!-- ── Informações Financeiras ── -->
+                    <HorizontalStackLayout Spacing="10" Margin="0,6,0,0">
+                        <Frame BackgroundColor="#14432A" BorderColor="#14432A" CornerRadius="8"
+                               Padding="0" WidthRequest="32" HeightRequest="32" HasShadow="False">
+                            <Label Text="💲" FontSize="16"
+                                   HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                        </Frame>
+                        <Label Text="Informações Financeiras" FontAttributes="Bold" FontSize="15"
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+
+                    <!-- Custo do Lote e Preço de Venda -->
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Custo Total do Lote (R$) *" Style="{StaticResource FieldLabelStyle}" />
+                            <Entry Keyboard="Numeric" Placeholder="0,00"
+                                   Text="{Binding CustoLote}" />
+                            <Label Text="{Binding CustoUnitarioCalculado}"
+                                   FontSize="11" TextColor="#4ADE80" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="6">
+                            <Label Text="Preço de Venda por Unidade (R$) *" Style="{StaticResource FieldLabelStyle}" />
+                            <Entry Keyboard="Numeric" Placeholder="0,00"
+                                   Text="{Binding PrecoVenda}" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <!-- Estoque Mínimo -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Estoque Mínimo (aviso de reposição) *" Style="{StaticResource FieldLabelStyle}" />
+                        <Entry Keyboard="Numeric"
+                               Text="{Binding EstoqueMinimo}" />
+                    </VerticalStackLayout>
+
+                    <!-- Descrição -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Descrição (opcional)" Style="{StaticResource FieldLabelStyle}" />
+                        <Editor Placeholder="Ex: Cerveja long neck 355ml gelada..."
+                                AutoSize="TextChanges"
+                                HeightRequest="100"
+                                Text="{Binding Descricao}" />
+                    </VerticalStackLayout>
+
+                    <!-- Botões -->
+                    <HorizontalStackLayout HorizontalOptions="End" Spacing="10" Margin="0,4,0,0">
+                        <Button Text="Cadastrar Produto"
+                                Command="{Binding CadastrarProdutoCommand}" />
+                        <Button Text="Salvar Alterações"
+                                IsVisible="{Binding EstaEmEdicao}"
+                                Command="{Binding AtualizarProdutoCommand}" />
+                    </HorizontalStackLayout>
+
                 </VerticalStackLayout>
-
-                <VerticalStackLayout Grid.Column="1">
-                    <Label Text="Custo unitário" TextColor="#111827" />
-                    <Entry Keyboard="Numeric"
-                           Placeholder="0,00"
-                           Text="{Binding CustoUnitario}" />
-                </VerticalStackLayout>
-            </Grid>
-
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                <VerticalStackLayout>
-                    <Label Text="Quantidade atual" TextColor="#111827" />
-                    <Entry Keyboard="Numeric"
-                           Text="{Binding QuantidadeInicial}" />
-                </VerticalStackLayout>
-
-                <VerticalStackLayout Grid.Column="1">
-                    <Label Text="Estoque mínimo" TextColor="#111827" />
-                    <Entry Keyboard="Numeric"
-                           Text="{Binding EstoqueMinimo}" />
-                </VerticalStackLayout>
-            </Grid>
-
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                <Button Text="Cadastrar Produto"
-                        Command="{Binding CadastrarProdutoCommand}" />
-                <Button Grid.Column="1"
-                        Text="Salvar Alterações"
-                        BackgroundColor="#5B3A29"
-                        Command="{Binding AtualizarProdutoCommand}" />
-            </Grid>
-
-            <Button Text="Limpar seleção"
-                    BackgroundColor="#6B7280"
-                    Command="{Binding LimparFormularioCommand}" />
-
-            <Frame Padding="10">
-                <Label Text="{Binding MensagemStatus}"
-                       TextColor="#111827" />
             </Frame>
 
-            <Label Text="Produtos cadastrados"
-                   FontSize="18"
-                   FontAttributes="Bold"
-                   TextColor="#111827" />
+            <!-- Status -->
+            <Frame Style="{StaticResource StatusFrameStyle}">
+                <Label Text="{Binding MensagemStatus}" FontSize="13" />
+            </Frame>
 
-            <CollectionView ItemsSource="{Binding ProdutosCadastrados}">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="models:Produto">
-                        <Frame Margin="0,4" Padding="10">
-                            <Grid ColumnDefinitions="*,Auto">
-                                <VerticalStackLayout>
-                                    <Label Text="{Binding Nome}"
-                                           FontAttributes="Bold"
-                                           TextColor="#111827" />
-                                    <Label Text="{Binding Unidade, StringFormat='Unidade: {0}'}"
-                                           TextColor="#374151" />
-                                    <Label Text="{Binding QuantidadeAtual, StringFormat='Qtd atual: {0}'}"
-                                           TextColor="#374151" />
-                                </VerticalStackLayout>
-
-                                <Label Grid.Column="1"
-                                       Text="{Binding CustoUnitario, StringFormat='R$ {0:F2}'}"
-                                       VerticalOptions="Center"
-                                       FontAttributes="Bold"
-                                       TextColor="#1F2937" />
-                            </Grid>
-                        </Frame>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

@@ -3,78 +3,111 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:EstoqueQuiosque.App.Models"
              x:Class="EstoqueQuiosque.App.Pages.EstoquePage"
-             Title="Movimentações">
+             Title="Conferir Produtos">
 
     <ScrollView>
-        <VerticalStackLayout Padding="16" Spacing="12">
-            <Label Text="Controle de Estoque - Praia"
-                   FontSize="24"
-                   FontAttributes="Bold"
-                   TextColor="#111827" />
+        <VerticalStackLayout Padding="32,24" Spacing="16">
 
-            <Label Text="Produto" TextColor="#111827" />
-            <Picker ItemsSource="{Binding Produtos}"
-                    ItemDisplayBinding="{Binding Nome}"
-                    SelectedItem="{Binding ProdutoSelecionado}" />
+            <Label Text="Conferir Produtos" Style="{StaticResource PageTitleStyle}" />
+            <Label Text="Visualize e gerencie seu estoque" Style="{StaticResource PageSubtitleStyle}" />
 
-            <Label Text="Quantidade" TextColor="#111827" />
-            <Entry Keyboard="Numeric"
-                   Text="{Binding QuantidadeMovimento}" />
-
-            <Label Text="Observação" TextColor="#111827" />
-            <Entry Placeholder="Ex.: reposição fornecedor"
-                   Text="{Binding Observacao}" />
-
-            <HorizontalStackLayout Spacing="10">
-                <Button Text="Registrar Entrada"
-                        Command="{Binding RegistrarEntradaCommand}" />
-                <Button Text="Registrar Saída"
-                        BackgroundColor="#D00000"
-                        Command="{Binding RegistrarSaidaCommand}" />
-            </HorizontalStackLayout>
-
-            <Frame BorderColor="#ADE8F4" Padding="8">
-                <Label Text="{Binding MensagemStatus}" />
+            <!-- Barra de busca -->
+            <Frame Style="{StaticResource SectionCardStyle}" Padding="14">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                    <Entry Placeholder="🔍  Buscar por nome ou código..."
+                           Text="{Binding TextoBusca}" />
+                    <Picker Grid.Column="1"
+                            MinimumWidthRequest="200"
+                            ItemsSource="{Binding Categorias}"
+                            SelectedItem="{Binding CategoriaSelecionada}" />
+                </Grid>
             </Frame>
 
-            <Label Text="Itens em estoque"
-                   FontAttributes="Bold"
-                   FontSize="18"
-                   TextColor="#111827" />
-
-            <CollectionView ItemsSource="{Binding Produtos}">
+            <!-- Lista de produtos -->
+            <CollectionView ItemsSource="{Binding ProdutosFiltrados}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:Produto">
-                        <Grid ColumnDefinitions="*,Auto" Padding="0,6">
-                            <VerticalStackLayout>
-                                <Label Text="{Binding Nome}" FontAttributes="Bold" TextColor="#111827" />
-                                <Label Text="{Binding QuantidadeAtual, StringFormat='Quantidade: {0}'}" TextColor="#374151" />
-                            </VerticalStackLayout>
-                            <Label Grid.Column="1"
-                                   Text="⚠"
-                                   TextColor="#D00000"
-                                   IsVisible="{Binding AbaixoDoMinimo}" />
-                        </Grid>
+                        <Frame Style="{StaticResource SectionCardStyle}" Margin="0,0,0,10">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="14">
+
+                                <!-- Nome + badge -->
+                                <HorizontalStackLayout Spacing="10" VerticalOptions="Center">
+                                    <Label Text="{Binding Nome}" FontAttributes="Bold" FontSize="15" />
+                                    <Frame IsVisible="{Binding AbaixoDoMinimo}"
+                                           BackgroundColor="#431407"
+                                           BorderColor="#9A3412"
+                                           CornerRadius="20"
+                                           Padding="10,3"
+                                           HasShadow="False">
+                                        <Label Text="⚠ Estoque Baixo"
+                                               TextColor="#FB923C" FontAttributes="Bold" FontSize="11" />
+                                    </Frame>
+                                </HorizontalStackLayout>
+
+                                <!-- Botões de ação -->
+                                <HorizontalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                                    <Button Text="💰"
+                                            BackgroundColor="Transparent"
+                                            TextColor="#4ADE80"
+                                            FontSize="15"
+                                            Padding="8,4"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RegistrarVendaCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    <Button Text="✏"
+                                            BackgroundColor="Transparent"
+                                            TextColor="#60A5FA"
+                                            FontSize="15"
+                                            Padding="8,4"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditarProdutoCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    <Button Text="🗑"
+                                            BackgroundColor="Transparent"
+                                            TextColor="#F87171"
+                                            FontSize="15"
+                                            Padding="8,4"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoverProdutoCommand}"
+                                            CommandParameter="{Binding .}" />
+                                </HorizontalStackLayout>
+
+                                <!-- Dados do produto -->
+                                <Grid Grid.Row="1" Grid.ColumnSpan="2"
+                                      ColumnDefinitions="*,*,*,*">
+
+                                    <VerticalStackLayout Spacing="3">
+                                        <Label Text="Código" Style="{StaticResource CardLabelStyle}" />
+                                        <Label Text="{Binding Codigo}" FontSize="13" FontAttributes="Bold" />
+                                    </VerticalStackLayout>
+
+                                    <VerticalStackLayout Grid.Column="1" Spacing="3">
+                                        <Label Text="Categoria" Style="{StaticResource CardLabelStyle}" />
+                                        <Label Text="{Binding Categoria}" FontSize="13" FontAttributes="Bold" />
+                                    </VerticalStackLayout>
+
+                                    <VerticalStackLayout Grid.Column="2" Spacing="3">
+                                        <Label Text="Quantidade" Style="{StaticResource CardLabelStyle}" />
+                                        <Label Text="{Binding QuantidadeAtual, StringFormat='{0} un'}"
+                                               FontSize="13" FontAttributes="Bold"
+                                               TextColor="{Binding AbaixoDoMinimo, Converter={StaticResource LowStockColorConverter}}" />
+                                    </VerticalStackLayout>
+
+                                    <VerticalStackLayout Grid.Column="3" Spacing="3">
+                                        <Label Text="Preço" Style="{StaticResource CardLabelStyle}" />
+                                        <Label Text="{Binding PrecoVenda, StringFormat='R$ {0:F2}'}"
+                                               FontSize="13" FontAttributes="Bold" />
+                                    </VerticalStackLayout>
+
+                                </Grid>
+                            </Grid>
+                        </Frame>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <Label Text="Últimos movimentos"
-                   FontAttributes="Bold"
-                   FontSize="18"
-                   TextColor="#111827" />
+            <!-- Status -->
+            <Frame Style="{StaticResource StatusFrameStyle}">
+                <Label Text="{Binding MensagemStatus}" FontSize="13" />
+            </Frame>
 
-            <CollectionView ItemsSource="{Binding MovimentosRecentes}">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="models:MovimentoEstoque">
-                        <VerticalStackLayout Padding="0,6">
-                            <Label Text="{Binding Resumo}" TextColor="#111827" />
-                            <Label Text="{Binding Quantidade, StringFormat='Qtd: {0}'}" FontSize="12" TextColor="#374151" />
-                            <Label Text="{Binding Data, StringFormat='Data: {0:dd/MM HH:mm}'}" FontSize="12" TextColor="#374151" />
-                        </VerticalStackLayout>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
