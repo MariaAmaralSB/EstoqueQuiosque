@@ -36,7 +36,9 @@ public class Produto : BaseModel
     [Column("descricao")]
     public string Descricao { get; set; } = string.Empty;
 
-    // Propriedades calculadas — não mapeadas para o banco
+    [Newtonsoft.Json.JsonIgnore]
+    public string QuantidadeFormatada => $"{QuantidadeAtual} {Unidade}";
+
     [Newtonsoft.Json.JsonIgnore]
     public bool AbaixoDoMinimo => QuantidadeAtual <= EstoqueMinimo;
 

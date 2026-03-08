@@ -36,6 +36,13 @@
                 ContentTemplate="{DataTemplate pages:EstoquePage}"
                 Route="EstoquePage" />
         </Tab>
+
+        <Tab Title="Movimentos">
+            <ShellContent
+                Title="Movimentos"
+                ContentTemplate="{DataTemplate pages:MovimentosPage}"
+                Route="MovimentosPage" />
+        </Tab>
     </TabBar>
 
 </Shell>

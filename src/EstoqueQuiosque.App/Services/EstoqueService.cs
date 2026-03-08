@@ -35,6 +35,7 @@ public class EstoqueService
         string nome,
         string codigo,
         string categoria,
+        string unidade,
         int quantidadeInicial,
         int estoqueMinimo,
         decimal custoUnitario,
@@ -59,7 +60,7 @@ public class EstoqueService
             Nome = nomeNormalizado,
             Codigo = codigoNormalizado,
             Categoria = string.IsNullOrWhiteSpace(categoria) ? "Geral" : categoria.Trim(),
-            Unidade = "un",
+            Unidade = string.IsNullOrWhiteSpace(unidade) ? "un" : unidade.Trim(),
             QuantidadeAtual = quantidadeInicial,
             EstoqueMinimo = estoqueMinimo,
             CustoUnitario = custoUnitario,
@@ -76,6 +77,7 @@ public class EstoqueService
         string nome,
         string codigo,
         string categoria,
+        string unidade,
         int quantidadeAtual,
         int estoqueMinimo,
         decimal custoUnitario,
@@ -105,6 +107,7 @@ public class EstoqueService
         produto.Nome = nomeNormalizado;
         produto.Codigo = codigoNormalizado;
         produto.Categoria = string.IsNullOrWhiteSpace(categoria) ? "Geral" : categoria.Trim();
+        produto.Unidade = string.IsNullOrWhiteSpace(unidade) ? "un" : unidade.Trim();
         produto.QuantidadeAtual = quantidadeAtual;
         produto.EstoqueMinimo = estoqueMinimo;
         produto.CustoUnitario = custoUnitario;

@@ -10,10 +10,13 @@
             <Label Text="Dashboard" Style="{StaticResource PageTitleStyle}" />
             <Label Text="Visão geral do seu estoque" Style="{StaticResource PageSubtitleStyle}" />
 
-            <!-- 4 cards em linha -->
+            <ActivityIndicator IsRunning="{Binding IsCarregando}"
+                               IsVisible="{Binding IsCarregando}"
+                               Color="#3B82F6"
+                               HeightRequest="40" />
+
             <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="14">
 
-                <!-- Total de Produtos -->
                 <Frame Style="{StaticResource CardStyle}">
                     <VerticalStackLayout Spacing="14">
                         <Frame BackgroundColor="#1A3A5C" BorderColor="#1A3A5C" CornerRadius="8"
@@ -27,7 +30,6 @@
                     </VerticalStackLayout>
                 </Frame>
 
-                <!-- Valor em Estoque -->
                 <Frame Grid.Column="1" Style="{StaticResource CardStyle}">
                     <VerticalStackLayout Spacing="14">
                         <Frame BackgroundColor="#14432A" BorderColor="#14432A" CornerRadius="8"
@@ -42,7 +44,6 @@
                     </VerticalStackLayout>
                 </Frame>
 
-                <!-- Produtos Ativos -->
                 <Frame Grid.Column="2" Style="{StaticResource CardStyle}">
                     <VerticalStackLayout Spacing="14">
                         <Frame BackgroundColor="#2D1F52" BorderColor="#2D1F52" CornerRadius="8"
@@ -56,7 +57,6 @@
                     </VerticalStackLayout>
                 </Frame>
 
-                <!-- Estoque Baixo -->
                 <Frame Grid.Column="3" Style="{StaticResource CardStyle}">
                     <VerticalStackLayout Spacing="14">
                         <Frame BackgroundColor="#5C2008" BorderColor="#5C2008" CornerRadius="8"
@@ -72,7 +72,6 @@
 
             </Grid>
 
-            <!-- Banner de boas-vindas -->
             <Frame BackgroundColor="{StaticResource Primary}" BorderColor="{StaticResource Primary}"
                    CornerRadius="14" Padding="22" Margin="0,6,0,0">
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="18">

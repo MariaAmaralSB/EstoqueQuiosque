@@ -12,6 +12,7 @@ public class DashboardViewModel : INotifyPropertyChanged
     private decimal _valorEmEstoque;
     private int _produtosAtivos;
     private int _estoqueBaixo;
+    private bool _isCarregando;
 
     public DashboardViewModel(EstoqueService estoqueService)
     {
@@ -46,8 +47,15 @@ public class DashboardViewModel : INotifyPropertyChanged
         set => SetProperty(ref _estoqueBaixo, value);
     }
 
+    public bool IsCarregando
+    {
+        get => _isCarregando;
+        set => SetProperty(ref _isCarregando, value);
+    }
+
     private async Task AtualizarIndicadoresAsync()
     {
+        await MainThread.InvokeOnMainThreadAsync(() => IsCarregando = true);
         try
         {
             var produtos = await _estoqueService.ListarProdutosAsync();
@@ -62,7 +70,10 @@ public class DashboardViewModel : INotifyPropertyChanged
         }
         catch
         {
-            // Dashboard não atualiza se não houver conexão
+        }
+        finally
+        {
+            await MainThread.InvokeOnMainThreadAsync(() => IsCarregando = false);
         }
     }
 
