@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:EstoqueQuiosque.App.Controls"
              x:Class="EstoqueQuiosque.App.Pages.CadastroProdutoPage"
-             Title="Cadastrar Produto">
+             Title="Cadastrar Produto"
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False">
 
-    <ScrollView>
+    <Grid RowDefinitions="52,1,*">
+        <controls:TopNavigationBar Grid.Row="0" CurrentPage="Cadastrar"/>
+        <BoxView Grid.Row="1" BackgroundColor="#1A2035"/>
+        <ScrollView Grid.Row="2">
         <VerticalStackLayout Padding="32,24" Spacing="16">
 
             <Label Text="Cadastrar Produto" Style="{StaticResource PageTitleStyle}" />
@@ -118,5 +124,6 @@
             </Frame>
 
         </VerticalStackLayout>
-    </ScrollView>
+        </ScrollView>
+    </Grid>
 </ContentPage>

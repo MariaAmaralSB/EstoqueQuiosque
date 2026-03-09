@@ -2,10 +2,16 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:EstoqueQuiosque.App.Models"
+             xmlns:controls="clr-namespace:EstoqueQuiosque.App.Controls"
              x:Class="EstoqueQuiosque.App.Pages.DashboardPage"
-             Title="Dashboard">
+             Title="Dashboard"
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False">
 
-    <ScrollView>
+    <Grid RowDefinitions="52,1,*">
+        <controls:TopNavigationBar Grid.Row="0" CurrentPage="Dashboard"/>
+        <BoxView Grid.Row="1" BackgroundColor="#1A2035"/>
+        <ScrollView Grid.Row="2">
         <VerticalStackLayout Padding="32,24" Spacing="20">
 
             <Label Text="Dashboard" Style="{StaticResource PageTitleStyle}" />
@@ -224,5 +230,6 @@
             </Frame>
 
         </VerticalStackLayout>
-    </ScrollView>
+        </ScrollView>
+    </Grid>
 </ContentPage>
