@@ -11,8 +11,8 @@
             <converters:MovimentoTipoColorConverter x:Key="MovimentoTipoColorConverter" />
             <converters:MovimentoTipoBackgroundConverter x:Key="MovimentoTipoBackgroundConverter" />
 
-            <Color x:Key="Primary">#3B82F6</Color>
-            <Color x:Key="PrimaryDark">#1D4ED8</Color>
+            <Color x:Key="Primary">#63B3ED</Color>
+            <Color x:Key="PrimaryDark">#4A9ED5</Color>
 
             <Color x:Key="LightPageBackground">#EEF2F7</Color>
             <Color x:Key="LightSurface">#FFFFFF</Color>
@@ -20,11 +20,11 @@
             <Color x:Key="LightTextSecondary">#475569</Color>
             <Color x:Key="LightBorder">#D7DFEA</Color>
 
-            <Color x:Key="DarkPageBackground">#090D18</Color>
-            <Color x:Key="DarkSurface">#111827</Color>
+            <Color x:Key="DarkPageBackground">#0A0B0F</Color>
+            <Color x:Key="DarkSurface">#111318</Color>
             <Color x:Key="DarkTextPrimary">#F1F5F9</Color>
             <Color x:Key="DarkTextSecondary">#8896A8</Color>
-            <Color x:Key="DarkBorder">#1C2539</Color>
+            <Color x:Key="DarkBorder">#1E2232</Color>
 
             <Style TargetType="ContentPage">
                 <Setter Property="BackgroundColor">
@@ -36,7 +36,7 @@
             </Style>
 
             <Style TargetType="Label">
-                <Setter Property="FontFamily" Value="OpenSansRegular" />
+                <Setter Property="FontFamily" Value="DMSansRegular" />
                 <Setter Property="TextColor">
                     <Setter.Value>
                         <AppThemeBinding Light="{StaticResource LightTextPrimary}"
@@ -46,7 +46,8 @@
             </Style>
 
             <Style x:Key="PageTitleStyle" TargetType="Label">
-                <Setter Property="FontSize" Value="34" />
+                <Setter Property="FontFamily" Value="SyneBold" />
+                <Setter Property="FontSize" Value="28" />
                 <Setter Property="FontAttributes" Value="Bold" />
                 <Setter Property="TextColor">
                     <Setter.Value>
@@ -199,18 +200,34 @@
                 </Setter>
             </Style>
 
+            <Style x:Key="AccentCardStyle" TargetType="Frame">
+                <Setter Property="HasShadow" Value="False" />
+                <Setter Property="CornerRadius" Value="14" />
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="BackgroundColor">
+                    <Setter.Value>
+                        <AppThemeBinding Light="{StaticResource LightSurface}" Dark="#111318" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="BorderColor">
+                    <Setter.Value>
+                        <AppThemeBinding Light="{StaticResource LightBorder}" Dark="#1E2232" />
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
             <Style x:Key="StatusFrameStyle" TargetType="Frame">
                 <Setter Property="HasShadow" Value="False" />
                 <Setter Property="CornerRadius" Value="10" />
                 <Setter Property="Padding" Value="14,10" />
                 <Setter Property="BackgroundColor">
                     <Setter.Value>
-                        <AppThemeBinding Light="#EFF6FF" Dark="#1E2D40" />
+                        <AppThemeBinding Light="#EFF6FF" Dark="#0D1829" />
                     </Setter.Value>
                 </Setter>
                 <Setter Property="BorderColor">
                     <Setter.Value>
-                        <AppThemeBinding Light="#BFDBFE" Dark="#2E3B52" />
+                        <AppThemeBinding Light="#BFDBFE" Dark="#1E3250" />
                     </Setter.Value>
                 </Setter>
             </Style>

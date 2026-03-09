@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:EstoqueQuiosque.App.Models"
              x:Class="EstoqueQuiosque.App.Pages.DashboardPage"
              Title="Dashboard">
 
@@ -12,84 +13,214 @@
 
             <ActivityIndicator IsRunning="{Binding IsCarregando}"
                                IsVisible="{Binding IsCarregando}"
-                               Color="#3B82F6"
+                               Color="#63B3ED"
                                HeightRequest="40" />
 
+            <!-- 4 stat cards in one row -->
             <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="14">
 
                 <Frame Style="{StaticResource CardStyle}">
-                    <VerticalStackLayout Spacing="14">
-                        <Frame BackgroundColor="#1A3A5C" BorderColor="#1A3A5C" CornerRadius="8"
-                               Padding="0" WidthRequest="42" HeightRequest="42" HasShadow="False"
-                               HorizontalOptions="Start">
-                            <Label Text="📦" FontSize="20"
-                                   HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                    <VerticalStackLayout Spacing="10">
+                        <Frame BackgroundColor="#1A3A5C" BorderColor="Transparent"
+                               CornerRadius="10" Padding="0"
+                               WidthRequest="44" HeightRequest="44"
+                               HasShadow="False" HorizontalOptions="Start">
+                            <Label Text="📦" FontSize="22"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalTextAlignment="Center" />
                         </Frame>
                         <Label Text="Total de Produtos" Style="{StaticResource CardLabelStyle}" />
                         <Label Text="{Binding TotalProdutos}" Style="{StaticResource CardValueStyle}" />
+                        <Label Text="itens cadastrados" FontSize="12" TextColor="#8896A8" />
                     </VerticalStackLayout>
                 </Frame>
 
                 <Frame Grid.Column="1" Style="{StaticResource CardStyle}">
-                    <VerticalStackLayout Spacing="14">
-                        <Frame BackgroundColor="#14432A" BorderColor="#14432A" CornerRadius="8"
-                               Padding="0" WidthRequest="42" HeightRequest="42" HasShadow="False"
-                               HorizontalOptions="Start">
-                            <Label Text="💲" FontSize="20"
-                                   HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                    <VerticalStackLayout Spacing="10">
+                        <Frame BackgroundColor="#143A26" BorderColor="Transparent"
+                               CornerRadius="10" Padding="0"
+                               WidthRequest="44" HeightRequest="44"
+                               HasShadow="False" HorizontalOptions="Start">
+                            <Label Text="💰" FontSize="22"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalTextAlignment="Center" />
                         </Frame>
                         <Label Text="Valor em Estoque" Style="{StaticResource CardLabelStyle}" />
                         <Label Text="{Binding ValorEmEstoque, StringFormat='R$ {0:N2}'}"
                                Style="{StaticResource CardValueStyle}" />
+                        <Label Text="preço de venda" FontSize="12" TextColor="#8896A8" />
                     </VerticalStackLayout>
                 </Frame>
 
                 <Frame Grid.Column="2" Style="{StaticResource CardStyle}">
-                    <VerticalStackLayout Spacing="14">
-                        <Frame BackgroundColor="#2D1F52" BorderColor="#2D1F52" CornerRadius="8"
-                               Padding="0" WidthRequest="42" HeightRequest="42" HasShadow="False"
-                               HorizontalOptions="Start">
-                            <Label Text="📈" FontSize="20"
-                                   HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                    <VerticalStackLayout Spacing="10">
+                        <Frame BackgroundColor="#143A30" BorderColor="Transparent"
+                               CornerRadius="10" Padding="0"
+                               WidthRequest="44" HeightRequest="44"
+                               HasShadow="False" HorizontalOptions="Start">
+                            <Label Text="✅" FontSize="22"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalTextAlignment="Center" />
                         </Frame>
                         <Label Text="Produtos Ativos" Style="{StaticResource CardLabelStyle}" />
                         <Label Text="{Binding ProdutosAtivos}" Style="{StaticResource CardValueStyle}" />
+                        <Label Text="com estoque > 0" FontSize="12" TextColor="#8896A8" />
                     </VerticalStackLayout>
                 </Frame>
 
                 <Frame Grid.Column="3" Style="{StaticResource CardStyle}">
-                    <VerticalStackLayout Spacing="14">
-                        <Frame BackgroundColor="#5C2008" BorderColor="#5C2008" CornerRadius="8"
-                               Padding="0" WidthRequest="42" HeightRequest="42" HasShadow="False"
-                               HorizontalOptions="Start">
-                            <Label Text="⚠" FontSize="20"
-                                   HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                    <VerticalStackLayout Spacing="10">
+                        <Frame BackgroundColor="#5C3A14" BorderColor="Transparent"
+                               CornerRadius="10" Padding="0"
+                               WidthRequest="44" HeightRequest="44"
+                               HasShadow="False" HorizontalOptions="Start">
+                            <Label Text="⚠" FontSize="22"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalTextAlignment="Center" />
                         </Frame>
                         <Label Text="Estoque Baixo" Style="{StaticResource CardLabelStyle}" />
-                        <Label Text="{Binding EstoqueBaixo}" Style="{StaticResource CardValueStyle}" />
+                        <Label Text="{Binding EstoqueBaixo}"
+                               Style="{StaticResource CardValueStyle}"
+                               TextColor="#F97316" />
+                        <Label Text="precisam reposição" FontSize="12" TextColor="#8896A8" />
                     </VerticalStackLayout>
                 </Frame>
 
             </Grid>
 
-            <Frame BackgroundColor="{StaticResource Primary}" BorderColor="{StaticResource Primary}"
-                   CornerRadius="14" Padding="22" Margin="0,6,0,0">
-                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="18">
-                    <Frame BackgroundColor="#5B94F8" BorderColor="#5B94F8" CornerRadius="10"
-                           Padding="0" WidthRequest="52" HeightRequest="52" HasShadow="False"
-                           VerticalOptions="Start">
-                        <Label Text="📦" FontSize="26"
-                               HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
-                    </Frame>
-                    <VerticalStackLayout Grid.Column="1" Spacing="6">
-                        <Label Text="Bem-vindo ao Sistema de Controle de Estoque"
-                               FontSize="18" FontAttributes="Bold" TextColor="White" />
-                        <Label Text="Gerencie seus produtos de forma eficiente. Cadastre novos itens e mantenha o controle total do seu inventário."
-                               FontSize="14" TextColor="#C7D2FE" />
-                        <Label Text="Comece cadastrando seus primeiros produtos na aba Cadastrar Produto"
-                               FontSize="13" TextColor="#A5B4FC" />
+            <!-- Estoque Baixo + Últimos Movimentos side by side -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="14">
+
+                <Frame Style="{StaticResource SectionCardStyle}">
+                    <VerticalStackLayout Spacing="14">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="⚠ ESTOQUE BAIXO"
+                                   FontSize="12" FontAttributes="Bold"
+                                   TextColor="#8896A8"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="Ver todos →"
+                                   TextColor="{StaticResource Primary}"
+                                   FontSize="13">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding VerProdutosCommand}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </Grid>
+                        <CollectionView ItemsSource="{Binding ProdutosEstoqueBaixoLista}">
+                            <CollectionView.EmptyView>
+                                <Label Text="Nenhum produto em estoque crítico."
+                                       FontSize="13" TextColor="#8896A8" />
+                            </CollectionView.EmptyView>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="models:Produto">
+                                    <VerticalStackLayout Spacing="6" Padding="0,8">
+                                        <Label Text="{Binding Nome}"
+                                               FontAttributes="Bold" FontSize="14" />
+                                        <Label Text="{Binding ResumoCategoriaMinimo}"
+                                               FontSize="12" TextColor="#8896A8" />
+                                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                            <ProgressBar Progress="{Binding ProgressoEstoque}"
+                                                         ProgressColor="#F97316"
+                                                         HeightRequest="4"
+                                                         VerticalOptions="Center" />
+                                            <Label Grid.Column="1"
+                                                   Text="{Binding QuantidadeFormatada}"
+                                                   FontAttributes="Bold" FontSize="13"
+                                                   TextColor="#F97316"
+                                                   VerticalOptions="Center" />
+                                        </Grid>
+                                    </VerticalStackLayout>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
                     </VerticalStackLayout>
-                </Grid>
+                </Frame>
+
+                <Frame Grid.Column="1" Style="{StaticResource SectionCardStyle}">
+                    <VerticalStackLayout Spacing="14">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="↕ ÚLTIMOS MOVIMENTOS"
+                                   FontSize="12" FontAttributes="Bold"
+                                   TextColor="#8896A8"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="Ver todos →"
+                                   TextColor="{StaticResource Primary}"
+                                   FontSize="13">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding VerMovimentosCommand}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </Grid>
+                        <CollectionView ItemsSource="{Binding MovimentosRecentes}">
+                            <CollectionView.EmptyView>
+                                <Label Text="Nenhum movimento registrado."
+                                       FontSize="13" TextColor="#8896A8" />
+                            </CollectionView.EmptyView>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="models:MovimentoEstoque">
+                                    <Grid ColumnDefinitions="Auto,*,Auto,Auto"
+                                          ColumnSpacing="10"
+                                          Padding="0,8">
+                                        <BoxView WidthRequest="8" HeightRequest="8"
+                                                 CornerRadius="4"
+                                                 BackgroundColor="{Binding Tipo, Converter={StaticResource MovimentoTipoColorConverter}}"
+                                                 VerticalOptions="Center" />
+                                        <Label Grid.Column="1"
+                                               Text="{Binding ProdutoNome}"
+                                               FontSize="13"
+                                               VerticalOptions="Center" />
+                                        <Label Grid.Column="2"
+                                               Text="{Binding Data, StringFormat='{0:dd/MM/yyyy HH:mm}'}"
+                                               FontSize="12" TextColor="#8896A8"
+                                               VerticalOptions="Center" />
+                                        <Label Grid.Column="3"
+                                               Text="{Binding DeltaQuantidade}"
+                                               FontSize="13" FontAttributes="Bold"
+                                               TextColor="{Binding Tipo, Converter={StaticResource MovimentoTipoColorConverter}}"
+                                               VerticalOptions="Center" />
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Frame>
+
+            </Grid>
+
+            <!-- Produtos por categoria -->
+            <Frame Style="{StaticResource SectionCardStyle}">
+                <VerticalStackLayout Spacing="14">
+                    <Label Text="PRODUTOS POR CATEGORIA"
+                           FontSize="12" FontAttributes="Bold"
+                           TextColor="#8896A8" />
+                    <CollectionView ItemsSource="{Binding CategoriasDistribuicao}">
+                        <CollectionView.EmptyView>
+                            <Label Text="Nenhum produto cadastrado."
+                                   FontSize="13" TextColor="#8896A8" />
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:CategoriaDistribuicao">
+                                <Grid ColumnDefinitions="100,*,30"
+                                      ColumnSpacing="14"
+                                      Padding="0,6">
+                                    <Label Text="{Binding Nome}"
+                                           FontSize="13"
+                                           VerticalOptions="Center" />
+                                    <ProgressBar Grid.Column="1"
+                                                 Progress="{Binding Percentagem}"
+                                                 ProgressColor="#63B3ED"
+                                                 HeightRequest="6"
+                                                 VerticalOptions="Center" />
+                                    <Label Grid.Column="2"
+                                           Text="{Binding Quantidade}"
+                                           FontSize="13" FontAttributes="Bold"
+                                           VerticalOptions="Center"
+                                           HorizontalTextAlignment="End" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
             </Frame>
 
         </VerticalStackLayout>

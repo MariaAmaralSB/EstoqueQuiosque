@@ -5,14 +5,14 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:pages="clr-namespace:EstoqueQuiosque.App.Pages"
     Shell.FlyoutBehavior="Disabled"
-    Shell.BackgroundColor="#0D1117"
+    Shell.BackgroundColor="#0A0B0F"
     Shell.ForegroundColor="White"
     Shell.TitleColor="White"
     Shell.NavBarHasShadow="False"
     Title="Controle de Estoque">
 
-    <TabBar Shell.TabBarBackgroundColor="#0D1117"
-            Shell.TabBarForegroundColor="#3B82F6"
+    <TabBar Shell.TabBarBackgroundColor="#0A0B0F"
+            Shell.TabBarForegroundColor="#63B3ED"
             Shell.TabBarTitleColor="#F1F5F9"
             Shell.TabBarUnselectedColor="#64748B"
             Shell.TabBarDisabledColor="#4B5563">

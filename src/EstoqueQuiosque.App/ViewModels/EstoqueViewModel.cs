@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using EstoqueQuiosque.App.Models;
+using EstoqueQuiosque.App.Pages;
 using EstoqueQuiosque.App.Services;
 
 namespace EstoqueQuiosque.App.ViewModels;
@@ -32,6 +33,13 @@ public class EstoqueViewModel : INotifyPropertyChanged
         RegistrarVendaCommand = new Command<Produto>(async produto => await RegistrarVendaAsync(produto));
         RegistrarEntradaCommand = new Command<Produto>(async produto => await RegistrarEntradaAsync(produto));
         ToggleFiltroEstoqueBaixoCommand = new Command(() => FiltroEstoqueBaixo = !FiltroEstoqueBaixo);
+        MostrarTodosCommand = new Command(() => FiltroEstoqueBaixo = false);
+        MostrarEstoqueBaixoCommand = new Command(() => FiltroEstoqueBaixo = true);
+        NovoProdutoCommand = new Command(() =>
+        {
+            _cadastroViewModel.ProdutoSelecionadoParaEdicao = null;
+            Shell.Current.GoToAsync("//CadastroProdutoPage");
+        });
 
         _ = Task.Run(BuscarDoBancoAsync);
     }
@@ -81,6 +89,7 @@ public class EstoqueViewModel : INotifyPropertyChanged
             if (SetProperty(ref _filtroEstoqueBaixo, value))
             {
                 OnPropertyChanged(nameof(FiltroEstoqueBaixoCorFundo));
+                OnPropertyChanged(nameof(TodosCorFundo));
                 AplicarFiltros();
             }
         }
@@ -89,11 +98,17 @@ public class EstoqueViewModel : INotifyPropertyChanged
     public Color FiltroEstoqueBaixoCorFundo =>
         _filtroEstoqueBaixo ? Color.FromArgb("#5C2008") : Colors.Transparent;
 
+    public Color TodosCorFundo =>
+        !_filtroEstoqueBaixo ? Color.FromArgb("#0F2A45") : Colors.Transparent;
+
     public ICommand RemoverProdutoCommand { get; }
     public ICommand EditarProdutoCommand { get; }
     public ICommand RegistrarVendaCommand { get; }
     public ICommand RegistrarEntradaCommand { get; }
     public ICommand ToggleFiltroEstoqueBaixoCommand { get; }
+    public ICommand MostrarTodosCommand { get; }
+    public ICommand MostrarEstoqueBaixoCommand { get; }
+    public ICommand NovoProdutoCommand { get; }
 
     private async Task BuscarDoBancoAsync()
     {
@@ -123,6 +138,7 @@ public class EstoqueViewModel : INotifyPropertyChanged
     private void AtualizarCategorias()
     {
         var categorias = _todosProdutos
+
             .Select(p => p.Categoria)
             .Where(c => !string.IsNullOrWhiteSpace(c))
             .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -197,52 +213,8 @@ public class EstoqueViewModel : INotifyPropertyChanged
         if (produto is null)
             return;
 
-        var input = await Application.Current!.MainPage!.DisplayPromptAsync(
-            "Registrar Venda",
-            $"{produto.Nome}\nEstoque atual: {produto.QuantidadeAtual} {produto.Unidade}\n\nQuantidade vendida:",
-            "Confirmar",
-            "Cancelar",
-            keyboard: Microsoft.Maui.Keyboard.Numeric,
-            initialValue: "1");
-
-        if (input is null)
-            return;
-
-        if (!int.TryParse(input, out int quantidade) || quantidade <= 0)
-        {
-            await Application.Current.MainPage!.DisplayAlert("Quantidade inválida", "Informe um número maior que zero.", "OK");
-            return;
-        }
-
-        if (quantidade > produto.QuantidadeAtual)
-        {
-            await Application.Current.MainPage!.DisplayAlert(
-                "Estoque insuficiente",
-                $"Disponível: {produto.QuantidadeFormatada}",
-                "OK");
-            return;
-        }
-
-        var obs = await Application.Current.MainPage!.DisplayPromptAsync(
-            "Observação (opcional)",
-            "Adicione uma nota para esta venda:",
-            "Confirmar",
-            "Pular",
-            placeholder: "Ex: Venda balcão");
-        var observacao = string.IsNullOrWhiteSpace(obs) ? "Venda" : obs.Trim();
-
-        try
-        {
-            await _estoqueService.RegistrarSaidaAsync(produto.Id, quantidade, observacao);
-        }
-        catch (InvalidOperationException ex)
-        {
-            await MainThread.InvokeOnMainThreadAsync(() => MensagemStatus = ex.Message);
-        }
-        catch (Exception ex)
-        {
-            await MainThread.InvokeOnMainThreadAsync(() => MensagemStatus = $"Erro ao registrar venda: {ex.Message}");
-        }
+        var vm = new RegistrarSaidaViewModel(_estoqueService, produto);
+        await Application.Current!.MainPage!.Navigation.PushModalAsync(new RegistrarSaidaPage(vm));
     }
 
     private async Task RegistrarEntradaAsync(Produto? produto)
@@ -250,43 +222,8 @@ public class EstoqueViewModel : INotifyPropertyChanged
         if (produto is null)
             return;
 
-        var input = await Application.Current!.MainPage!.DisplayPromptAsync(
-            "Registrar Entrada",
-            $"{produto.Nome}\nEstoque atual: {produto.QuantidadeFormatada}\n\nQuantidade recebida:",
-            "Confirmar",
-            "Cancelar",
-            keyboard: Microsoft.Maui.Keyboard.Numeric,
-            initialValue: "1");
-
-        if (input is null)
-            return;
-
-        if (!int.TryParse(input, out int quantidade) || quantidade <= 0)
-        {
-            await Application.Current.MainPage!.DisplayAlert("Quantidade inválida", "Informe um número maior que zero.", "OK");
-            return;
-        }
-
-        var obs = await Application.Current.MainPage!.DisplayPromptAsync(
-            "Observação (opcional)",
-            "Adicione uma nota para esta entrada:",
-            "Confirmar",
-            "Pular",
-            placeholder: "Ex: Reposição de estoque");
-        var observacao = string.IsNullOrWhiteSpace(obs) ? "Entrada de estoque" : obs.Trim();
-
-        try
-        {
-            await _estoqueService.RegistrarEntradaAsync(produto.Id, quantidade, observacao);
-        }
-        catch (InvalidOperationException ex)
-        {
-            await MainThread.InvokeOnMainThreadAsync(() => MensagemStatus = ex.Message);
-        }
-        catch (Exception ex)
-        {
-            await MainThread.InvokeOnMainThreadAsync(() => MensagemStatus = $"Erro ao registrar entrada: {ex.Message}");
-        }
+        var vm = new RegistrarEntradaViewModel(_estoqueService, produto);
+        await Application.Current!.MainPage!.Navigation.PushModalAsync(new RegistrarEntradaPage(vm));
     }
 
     private void EditarProduto(Produto? produto)

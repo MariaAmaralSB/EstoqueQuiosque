@@ -44,4 +44,11 @@ public class Produto : BaseModel
 
     [Newtonsoft.Json.JsonIgnore]
     public decimal ValorEmEstoque => QuantidadeAtual * CustoUnitario;
+
+    [Newtonsoft.Json.JsonIgnore]
+    public double ProgressoEstoque =>
+        EstoqueMinimo > 0 ? Math.Min(1.0, (double)QuantidadeAtual / EstoqueMinimo) : 0;
+
+    [Newtonsoft.Json.JsonIgnore]
+    public string ResumoCategoriaMinimo => $"{Categoria} · min: {EstoqueMinimo} {Unidade}";
 }
