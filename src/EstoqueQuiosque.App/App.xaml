@@ -10,6 +10,8 @@
             <converters:LowStockColorConverter x:Key="LowStockColorConverter" />
             <converters:MovimentoTipoColorConverter x:Key="MovimentoTipoColorConverter" />
             <converters:MovimentoTipoBackgroundConverter x:Key="MovimentoTipoBackgroundConverter" />
+            <converters:StringNotEmptyConverter x:Key="StringNotEmptyConverter" />
+            <converters:NavActiveColorConverter x:Key="NavActiveColorConverter" />
 
             <Color x:Key="Primary">#63B3ED</Color>
             <Color x:Key="PrimaryDark">#4A9ED5</Color>
