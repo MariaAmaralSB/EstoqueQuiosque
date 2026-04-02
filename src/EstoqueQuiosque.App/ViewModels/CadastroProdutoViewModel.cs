@@ -13,12 +13,14 @@ public class CadastroProdutoViewModel : INotifyPropertyChanged
     private string _nomeProduto = string.Empty;
     private string _codigoProduto = string.Empty;
     private string _categoria = string.Empty;
+    private string _unidade = "un";
     private int _quantidadeInicial;
     private int _estoqueMinimo;
     private decimal _custoLote;
     private decimal _precoVenda;
     private string _descricao = string.Empty;
     private string _mensagemStatus = "Cadastre um novo produto para iniciar o controle.";
+    private bool _isCarregando;
 
     public CadastroProdutoViewModel(EstoqueService estoqueService)
     {
@@ -34,12 +36,17 @@ public class CadastroProdutoViewModel : INotifyPropertyChanged
     public List<string> Categorias { get; } =
     [
         "Bebidas",
-        "Lanches",
-        "Salgados",
-        "Doces",
-        "Sorvetes",
-        "Outros"
+        "Carnes",
+        "Salgados"
     ];
+
+    public List<string> Unidades { get; } = ["un", "kg", "L", "cx"];
+
+    public bool IsCarregando
+    {
+        get => _isCarregando;
+        set => SetProperty(ref _isCarregando, value);
+    }
 
     public Produto? ProdutoSelecionadoParaEdicao
     {
@@ -53,6 +60,7 @@ public class CadastroProdutoViewModel : INotifyPropertyChanged
                     NomeProduto = value.Nome;
                     CodigoProduto = value.Codigo;
                     Categoria = value.Categoria;
+                    Unidade = value.Unidade;
                     QuantidadeInicial = value.QuantidadeAtual;
                     EstoqueMinimo = value.EstoqueMinimo;
                     CustoLote = value.CustoUnitario * value.QuantidadeAtual;
@@ -83,6 +91,12 @@ public class CadastroProdutoViewModel : INotifyPropertyChanged
     {
         get => _categoria;
         set => SetProperty(ref _categoria, value);
+    }
+
+    public string Unidade
+    {
+        get => _unidade;
+        set => SetProperty(ref _unidade, value);
     }
 
     public int QuantidadeInicial
@@ -153,11 +167,12 @@ public class CadastroProdutoViewModel : INotifyPropertyChanged
 
     private async Task CadastrarProdutoAsync()
     {
+        IsCarregando = true;
         try
         {
             var custoUnitario = QuantidadeInicial > 0 ? CustoLote / QuantidadeInicial : 0;
             await _estoqueService.CadastrarProdutoAsync(
-                NomeProduto, CodigoProduto, Categoria,
+                NomeProduto, CodigoProduto, Categoria, Unidade,
                 QuantidadeInicial, EstoqueMinimo,
                 custoUnitario, PrecoVenda, Descricao);
 
@@ -172,6 +187,10 @@ public class CadastroProdutoViewModel : INotifyPropertyChanged
         {
             MensagemStatus = $"Erro: {ex.Message}";
         }
+        finally
+        {
+            IsCarregando = false;
+        }
     }
 
     private async Task AtualizarProdutoAsync()
@@ -179,12 +198,13 @@ public class CadastroProdutoViewModel : INotifyPropertyChanged
         if (ProdutoSelecionadoParaEdicao is null)
             return;
 
+        IsCarregando = true;
         try
         {
             var custoUnitario = QuantidadeInicial > 0 ? CustoLote / QuantidadeInicial : 0;
             await _estoqueService.AtualizarProdutoAsync(
                 ProdutoSelecionadoParaEdicao.Id,
-                NomeProduto, CodigoProduto, Categoria,
+                NomeProduto, CodigoProduto, Categoria, Unidade,
                 QuantidadeInicial, EstoqueMinimo,
                 custoUnitario, PrecoVenda, Descricao);
 
@@ -199,6 +219,10 @@ public class CadastroProdutoViewModel : INotifyPropertyChanged
         {
             MensagemStatus = $"Erro: {ex.Message}";
         }
+        finally
+        {
+            IsCarregando = false;
+        }
     }
 
     private void LimparFormulario()
@@ -207,6 +231,7 @@ public class CadastroProdutoViewModel : INotifyPropertyChanged
         NomeProduto = string.Empty;
         CodigoProduto = string.Empty;
         Categoria = string.Empty;
+        Unidade = "un";
         QuantidadeInicial = 0;
         EstoqueMinimo = 0;
         CustoLote = 0;

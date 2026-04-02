@@ -15,6 +15,8 @@ public static class MauiProgram
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                fonts.AddFont("Syne-Bold.ttf", "SyneBold");
+                fonts.AddFont("DMSans-Regular.ttf", "DMSansRegular");
             });
 
         var supabaseOptions = new Supabase.SupabaseOptions
@@ -29,9 +31,11 @@ public static class MauiProgram
         builder.Services.AddSingleton<DashboardViewModel>();
         builder.Services.AddSingleton<EstoqueViewModel>();
         builder.Services.AddSingleton<CadastroProdutoViewModel>();
+        builder.Services.AddSingleton<MovimentosViewModel>();
         builder.Services.AddSingleton<DashboardPage>();
         builder.Services.AddSingleton<EstoquePage>();
         builder.Services.AddSingleton<CadastroProdutoPage>();
+        builder.Services.AddSingleton<MovimentosPage>();
 
         return builder.Build();
     }

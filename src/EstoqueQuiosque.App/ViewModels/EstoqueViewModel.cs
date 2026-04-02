@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using EstoqueQuiosque.App.Models;
+using EstoqueQuiosque.App.Pages;
 using EstoqueQuiosque.App.Services;
 
 namespace EstoqueQuiosque.App.ViewModels;
@@ -12,24 +13,33 @@ public class EstoqueViewModel : INotifyPropertyChanged
     private readonly EstoqueService _estoqueService;
     private readonly CadastroProdutoViewModel _cadastroViewModel;
 
-    // Cache local dos produtos — filtro roda aqui, sem ir à rede
     private List<Produto> _todosProdutos = [];
 
     private string _textoBusca = string.Empty;
     private string _categoriaSelecionada = "Todas as Categorias";
     private string _mensagemStatus = "Carregando produtos...";
+    private bool _isCarregando;
+    private bool _filtroEstoqueBaixo;
 
     public EstoqueViewModel(EstoqueService estoqueService, CadastroProdutoViewModel cadastroViewModel)
     {
         _estoqueService = estoqueService;
         _cadastroViewModel = cadastroViewModel;
 
-        // Só busca da rede quando os dados mudam no serviço
         _estoqueService.DadosAtualizados += () => _ = Task.Run(BuscarDoBancoAsync);
 
         RemoverProdutoCommand = new Command<Produto>(async produto => await RemoverProdutoAsync(produto));
         EditarProdutoCommand = new Command<Produto>(EditarProduto);
         RegistrarVendaCommand = new Command<Produto>(async produto => await RegistrarVendaAsync(produto));
+        RegistrarEntradaCommand = new Command<Produto>(async produto => await RegistrarEntradaAsync(produto));
+        ToggleFiltroEstoqueBaixoCommand = new Command(() => FiltroEstoqueBaixo = !FiltroEstoqueBaixo);
+        MostrarTodosCommand = new Command(() => FiltroEstoqueBaixo = false);
+        MostrarEstoqueBaixoCommand = new Command(() => FiltroEstoqueBaixo = true);
+        NovoProdutoCommand = new Command(() =>
+        {
+            _cadastroViewModel.ProdutoSelecionadoParaEdicao = null;
+            Shell.Current.GoToAsync("//CadastroProdutoPage");
+        });
 
         _ = Task.Run(BuscarDoBancoAsync);
     }
@@ -45,7 +55,7 @@ public class EstoqueViewModel : INotifyPropertyChanged
         set
         {
             if (SetProperty(ref _textoBusca, value))
-                AplicarFiltros();   // só filtra local, sem rede
+                AplicarFiltros();
         }
     }
 
@@ -55,7 +65,7 @@ public class EstoqueViewModel : INotifyPropertyChanged
         set
         {
             if (SetProperty(ref _categoriaSelecionada, value))
-                AplicarFiltros();   // só filtra local, sem rede
+                AplicarFiltros();
         }
     }
 
@@ -65,13 +75,44 @@ public class EstoqueViewModel : INotifyPropertyChanged
         set => SetProperty(ref _mensagemStatus, value);
     }
 
+    public bool IsCarregando
+    {
+        get => _isCarregando;
+        set => SetProperty(ref _isCarregando, value);
+    }
+
+    public bool FiltroEstoqueBaixo
+    {
+        get => _filtroEstoqueBaixo;
+        set
+        {
+            if (SetProperty(ref _filtroEstoqueBaixo, value))
+            {
+                OnPropertyChanged(nameof(FiltroEstoqueBaixoCorFundo));
+                OnPropertyChanged(nameof(TodosCorFundo));
+                AplicarFiltros();
+            }
+        }
+    }
+
+    public Color FiltroEstoqueBaixoCorFundo =>
+        _filtroEstoqueBaixo ? Color.FromArgb("#5C2008") : Colors.Transparent;
+
+    public Color TodosCorFundo =>
+        !_filtroEstoqueBaixo ? Color.FromArgb("#0F2A45") : Colors.Transparent;
+
     public ICommand RemoverProdutoCommand { get; }
     public ICommand EditarProdutoCommand { get; }
     public ICommand RegistrarVendaCommand { get; }
+    public ICommand RegistrarEntradaCommand { get; }
+    public ICommand ToggleFiltroEstoqueBaixoCommand { get; }
+    public ICommand MostrarTodosCommand { get; }
+    public ICommand MostrarEstoqueBaixoCommand { get; }
+    public ICommand NovoProdutoCommand { get; }
 
-    // Vai à rede, atualiza o cache e depois filtra
     private async Task BuscarDoBancoAsync()
     {
+        await MainThread.InvokeOnMainThreadAsync(() => IsCarregando = true);
         try
         {
             var todos = await _estoqueService.ListarProdutosAsync();
@@ -88,12 +129,16 @@ public class EstoqueViewModel : INotifyPropertyChanged
             await MainThread.InvokeOnMainThreadAsync(() =>
                 MensagemStatus = "Erro ao carregar produtos. Verifique a conexão.");
         }
+        finally
+        {
+            await MainThread.InvokeOnMainThreadAsync(() => IsCarregando = false);
+        }
     }
 
-    // Reconstrói a lista de categorias usando o cache local
     private void AtualizarCategorias()
     {
         var categorias = _todosProdutos
+
             .Select(p => p.Categoria)
             .Where(c => !string.IsNullOrWhiteSpace(c))
             .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -105,12 +150,10 @@ public class EstoqueViewModel : INotifyPropertyChanged
         foreach (var cat in categorias)
             Categorias.Add(cat);
 
-        // Altera o campo diretamente — sem passar pelo setter — para não disparar AplicarFiltros de novo
         if (!Categorias.Contains(_categoriaSelecionada))
             _categoriaSelecionada = "Todas as Categorias";
     }
 
-    // Filtra o cache local — sem chamada de rede
     private void AplicarFiltros()
     {
         var filtrados = _todosProdutos.AsEnumerable();
@@ -128,6 +171,9 @@ public class EstoqueViewModel : INotifyPropertyChanged
                 string.Equals(p.Categoria, _categoriaSelecionada, StringComparison.OrdinalIgnoreCase));
         }
 
+        if (_filtroEstoqueBaixo)
+            filtrados = filtrados.Where(p => p.AbaixoDoMinimo);
+
         var lista = filtrados.ToList();
 
         ProdutosFiltrados.Clear();
@@ -144,7 +190,7 @@ public class EstoqueViewModel : INotifyPropertyChanged
 
         var confirmado = await Application.Current!.MainPage!.DisplayAlert(
             "Confirmar exclusão",
-            $"Deseja remover o produto '{produto.Nome}'?",
+            $"Produto: {produto.Nome}\nCódigo: {produto.Codigo}\nQuantidade: {produto.QuantidadeFormatada}\nValor em estoque: R$ {produto.ValorEmEstoque:N2}\n\nEssa ação não pode ser desfeita.",
             "Remover",
             "Cancelar");
 
@@ -167,44 +213,17 @@ public class EstoqueViewModel : INotifyPropertyChanged
         if (produto is null)
             return;
 
-        var input = await Application.Current!.MainPage!.DisplayPromptAsync(
-            "Registrar Venda",
-            $"{produto.Nome}\nEstoque atual: {produto.QuantidadeAtual} {produto.Unidade}\n\nQuantidade vendida:",
-            "Confirmar",
-            "Cancelar",
-            keyboard: Microsoft.Maui.Keyboard.Numeric,
-            initialValue: "1");
+        var vm = new RegistrarSaidaViewModel(_estoqueService, produto);
+        await Application.Current!.MainPage!.Navigation.PushModalAsync(new RegistrarSaidaPage(vm));
+    }
 
-        if (input is null)
+    private async Task RegistrarEntradaAsync(Produto? produto)
+    {
+        if (produto is null)
             return;
 
-        if (!int.TryParse(input, out int quantidade) || quantidade <= 0)
-        {
-            await Application.Current.MainPage!.DisplayAlert("Quantidade inválida", "Informe um número maior que zero.", "OK");
-            return;
-        }
-
-        if (quantidade > produto.QuantidadeAtual)
-        {
-            await Application.Current.MainPage!.DisplayAlert(
-                "Estoque insuficiente",
-                $"Disponível: {produto.QuantidadeAtual} {produto.Unidade}",
-                "OK");
-            return;
-        }
-
-        try
-        {
-            await _estoqueService.RegistrarSaidaAsync(produto.Id, quantidade, "Venda");
-        }
-        catch (InvalidOperationException ex)
-        {
-            await MainThread.InvokeOnMainThreadAsync(() => MensagemStatus = ex.Message);
-        }
-        catch (Exception ex)
-        {
-            await MainThread.InvokeOnMainThreadAsync(() => MensagemStatus = $"Erro ao registrar venda: {ex.Message}");
-        }
+        var vm = new RegistrarEntradaViewModel(_estoqueService, produto);
+        await Application.Current!.MainPage!.Navigation.PushModalAsync(new RegistrarEntradaPage(vm));
     }
 
     private void EditarProduto(Produto? produto)

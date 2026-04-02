@@ -26,4 +26,7 @@ public class MovimentoEstoque : BaseModel
 
     [Newtonsoft.Json.JsonIgnore]
     public string Resumo => $"{Tipo} — {ProdutoNome}";
+
+    [Newtonsoft.Json.JsonIgnore]
+    public string DeltaQuantidade => Tipo == "Entrada" ? $"+{Quantidade}" : $"-{Quantidade}";
 }
